@@ -10,7 +10,7 @@
 |---|---|
 | Kategori | Manufaktur (data anonim) |
 | Tingkat | Sedang |
-| Data | Data kerja yang dianonimkan (supplier, material, lot, model, dan stasiun diganti kode; jumlah unit diskala) |
+| Data | Simulasi yang dianonimkan (data karangan dari generator; supplier, material, lot, model, dan stasiun diganti kode; jumlah unit diskala) |
 | Tools | DuckDB + SQL (CTE, window function), Python (pandas, SciPy), Excel, Streamlit + Plotly |
 
 ## 1. Problem
@@ -21,7 +21,8 @@ Rancangan memecahnya menjadi 14 pertanyaan (9 Utama, 4 Pendukung, 1 Tambahan) da
 
 ## 2. Data
 
-- Data kerja penerimaan lot dan NG produksi yang dianonimkan: SUP-A sampai SUP-E, MAT-1 sampai MAT-3, kode lot acak. Data asli dan tabel pemetaan kode tidak masuk repositori.
+- Data simulasi penerimaan lot dan NG material (100% karangan, tidak memakai data perusahaan). `scripts/generate_raw.py` membuat data bernama, lalu `scripts/anonymize.py` menggantinya dengan kode: SUP-A sampai SUP-E, MAT-1 sampai MAT-3, kode lot acak, jumlah unit diskala. Data sebelum anonymization dan tabel pemetaan kode ada di `data/private/` dan tidak di-commit.
+- Versi data: v1. Tanggal dibuat: 28 Okt 2026. Seed: 17260302 (generator), 17260999 (pemetaan kode). Generator: `scripts/generate_raw.py lalu scripts/anonymize.py`. Hasil v1: 1.200 lot, 3.584 baris pemakaian.
 - Ukuran (perkiraan): 5 supplier, 3 jenis material, ±6 bulan, ±1.200 lot.
 - Rencana tabel: `dim_supplier`, `material_lot`, `lot_usage`, `scorecard_monthly`.
 
@@ -55,6 +56,7 @@ Definisi skor (usulan awal): skor = 50% sub-skor NG rate + 25% konsistensi antar
 - Bergantung pada ketepatan kategori "NG karena material".
 - Bobot skor bersifat subjektif.
 - Pola belum tentu penyebab.
+- Data simulasi: pola supplier dan lot ditanam oleh generator, sehingga hasil membuktikan metode bekerja, bukan kondisi pabrik.
 
 ## Struktur repository
 
