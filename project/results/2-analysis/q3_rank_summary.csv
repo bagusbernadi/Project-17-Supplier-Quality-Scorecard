@@ -1,0 +1,6 @@
+supplier_code,rank_rata_rata,rank_terbaik,rank_terburuk,bulan_rank_1,perubahan_rank,jumlah_bulan
+SUP-A,2.833333333,2,4,0,4,6
+SUP-B,3.5,2,5,0,5,6
+SUP-C,1,1,1,6,0,6
+SUP-D,3.666666667,2,5,0,4,6
+SUP-E,4,3,5,0,5,6

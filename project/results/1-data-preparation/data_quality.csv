@@ -1,0 +1,14 @@
+kategori,jumlah,dasar,proporsi,keputusan
+baris lot (mentah),1200,1200,1.0,dasar
+baris pemakaian (mentah),3584,3584,1.0,dasar
+lot tanpa supplier atau material,0,1200,0.0,tidak ada
+lot ganda,0,1200,0.0,tidak ada
+pasangan supplier-material tidak ada di dim_supplier,0,1200,0.0,tidak ada
+baris pemakaian ganda,0,3584,0.0,tidak ada
+pemakaian tanpa lot,0,3584,0.0,tidak ada
+NG lebih besar dari input,0,3584,0.0,tidak ada
+input tidak positif,0,3584,0.0,tidak ada
+pemakaian sebelum lot diterima,0,3584,0.0,tidak ada
+baris pemakaian valid,3584,3584,1.0,dipakai
+lot dengan hasil Reject saat penerimaan yang tetap dipakai (info),48,3584,0.013393,"dipakai, ditandai di scorecard"
+lot tanpa pemakaian (info),0,1200,0.0,dipertahankan di tabel lot

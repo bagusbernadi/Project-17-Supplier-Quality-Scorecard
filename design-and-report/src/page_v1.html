@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Project 17: Supplier Quality Scorecard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Rancangan project portofolio Data Analyst: scorecard kualitas supplier dengan SQL window function dari data lot dan NG yang dianonimkan.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: tema terang ala Google (single theme, sengaja): latar putih keabuan, kartu putih;
+   biru = struktur, kuning = penanda utama, hijau = info pendukung, merah = aksen.
+   Skala huruf: H1 32 · H2 25 · H3 19 · body 16.5 · keterangan 14 · label 12.5 */
+:root{color-scheme:light;
+--bg:#F8F9FA;--card:#FFFFFF;--sub:#F1F3F4;--line:#DADCE0;
+--ink:#202124;--head:#174EA6;--mut:#5F6368;
+--navy:#1A73E8;--navy-ink:#FFFFFF;--teal:#188038;--amber:#FBBC04;--amber-ink:#3C2A00;--bar:#1A73E8;--soft:#E8F0FE;
+--gb:#4285F4;--gr:#EA4335;--gy:#FBBC04;--gg:#34A853;
+--navyH:#1A73E8;--amberH:#B06000;--tealH:#188038;--plumH:#9334E6;--roseH:#D93025;--skyH:#1967D2;--onph:#fff;
+--f:"Source Sans 3",Calibri,Carlito,"Segoe UI",Arial,sans-serif;
+--h1:clamp(26px,2.6vw,32px);--h2:clamp(21px,2vw,25px);--h3:19px;--body:16.5px;--small:14px;--label:12.5px}
+[hidden]{display:none!important}
+*{box-sizing:border-box}html{scroll-padding-top:64px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--body)/1.6 var(--f)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+main{max-width:880px;margin:0 auto;padding-block:16px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+b,strong{font-weight:700}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);padding:8px 0;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;border-radius:999px;padding:6px 14px;font-size:var(--small);font-weight:600}
+nav a:hover,nav a:focus-visible{background:var(--amber);border-color:var(--amber);color:var(--amber-ink);outline:none}
+.banner{background:var(--navy);color:var(--navy-ink);border-radius:18px;padding:22px 26px}
+.banner h1{margin:0 0 8px;font-size:var(--h1);font-weight:800;line-height:1.2;text-wrap:balance;letter-spacing:-.01em}.banner p{margin:0;font-size:18px;line-height:1.55;opacity:.97}.banner .goal b{font-weight:800}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tags{align-items:center}.tlab{font-size:var(--small);font-weight:700;margin-right:4px;opacity:.95}
+.tag{border-radius:999px;padding:3px 12px;font-size:var(--label);font-weight:700;background:rgba(255,255,255,.2);letter-spacing:.02em}.tag.a{background:var(--amber);color:var(--amber-ink)}
+.card{border-radius:16px;padding:16px 20px;background:var(--card);border:1px solid var(--line);margin:12px 0}
+.card p{margin:8px 0}
+h2{font-size:var(--h2);font-weight:800;color:var(--head);margin:48px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--line);line-height:1.25;text-wrap:balance}
+h2 small{display:block;font-size:var(--small);font-weight:400;color:var(--mut);margin-top:4px}
+h3{font-size:var(--h3);font-weight:700;color:var(--head);margin:16px 0 6px;line-height:1.3}
+.card h3:first-child,.card>div>h3:first-child{margin-top:4px}
+.add{display:inline-block;vertical-align:middle;margin-left:8px;border-radius:999px;padding:2px 10px;font-size:var(--label);font-weight:700;background:var(--teal);color:#fff}
+.how{background:var(--soft);border-radius:12px;padding:12px 16px;margin:10px 0;font-size:var(--small);line-height:1.55;color:var(--ink)}.how::before{content:"Cara membaca ";font-weight:700;color:var(--teal)}
+.callout{border-radius:14px;padding:14px 20px;margin:12px 0;font-size:16px}.callout h4{margin:0 0 6px;font-size:var(--h3);font-weight:700}.callout p{margin:6px 0}
+.callout.a{background:var(--amber);color:var(--amber-ink)}.callout.g{background:var(--teal);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}.kpis .card{margin:0}
+.kpi .v{font-size:30px;font-weight:800;display:block;line-height:1.15;color:var(--head);font-variant-numeric:tabular-nums}.kpi .l{display:block;font-weight:700;font-size:16px;margin-top:2px}.kpi .d{display:block;font-size:var(--small);line-height:1.4;margin-top:6px;color:var(--mut)}
+.kpi.t{background:var(--teal);border-color:var(--teal);color:#fff}.kpi.am{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.kpi.t .v,.kpi.t .d,.kpi.am .v,.kpi.am .d{color:inherit}
+table{border-collapse:collapse;width:100%;font-size:15px;background:var(--card);border-radius:12px;overflow:hidden}
+th{background:var(--navy);color:var(--navy-ink);padding:9px 12px;text-align:left;vertical-align:top;font-weight:700}
+td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(odd) td{background:var(--sub)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:10px 0}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:6px 0;display:grid;grid-template-columns:40px 1fr;gap:4px 8px;font-size:16px;line-height:1.45}
+.q .id{font-weight:800;color:var(--head)}.q .m{grid-column:2;font-size:var(--small);color:var(--mut)}
+.pri{display:inline-block;border-radius:999px;padding:1px 9px;font-size:var(--label);font-weight:700;margin-left:6px;background:var(--sub);border:1px solid var(--line);color:var(--mut)}.pri.M{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}.pri.S{background:var(--navy);border-color:var(--navy);color:#fff}
+.theme{font-size:var(--label);font-weight:700;color:var(--teal);margin:20px 0 4px;text-transform:uppercase;letter-spacing:.08em}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
+.flow span{border-radius:999px;padding:5px 12px;font-size:var(--small);font-weight:700;background:var(--sub);border:1px solid var(--line)}
+.flow span.ng{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}.flow span.ok{background:var(--teal);border-color:var(--teal);color:#fff}.flow i{font-style:normal;color:var(--mut);font-size:var(--small)}
+.row{display:flex;align-items:center;gap:8px;margin:6px 0;width:100%;font:inherit;font-size:var(--small);color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.row .n{width:96px;flex:none;font-weight:600}.row .tr{flex:1;background:var(--sub);border-radius:8px;height:24px;position:relative;overflow:hidden}
+.row .b{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:var(--bar);transition:width .25s}
+.row.sel .b{background:var(--amber)}.row.sel .n{color:var(--head);font-weight:800}
+.row .c{width:58px;text-align:right;flex:none;font-variant-numeric:tabular-nums;font-weight:600}
+.row:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:8px}
+.ctl{display:flex;align-items:center;gap:12px;margin:14px 0 10px;font-weight:700;font-size:15px}.ctl input{flex:1;accent-color:#F2A541}.ctl output{min-width:48px;text-align:right}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}.res div{background:var(--sub);border-radius:12px;padding:10px 14px;font-size:var(--small);color:var(--mut)}.res b{display:block;font-size:24px;font-weight:800;color:var(--head);font-variant-numeric:tabular-nums}
+.steps{counter-reset:s;display:grid;gap:8px;margin:10px 0;padding:0;list-style:none}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px 12px 54px;position:relative}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+.steps li.L::before{background:var(--amber);color:var(--amber-ink)}
+.steps b.t{display:block;font-size:17px;color:var(--head);line-height:1.3}.steps p{margin:6px 0;font-size:15px;line-height:1.5}.steps .meta{font-size:13px;color:var(--mut)}
+.phase{font-size:var(--label);font-weight:700;color:var(--teal);margin:18px 0 0;text-transform:uppercase;letter-spacing:.08em}
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:12px 0}.tools .card{margin:0}
+.tools b{display:block;font-size:var(--h3);color:var(--head)}.tools .r{font-size:15px;margin:6px 0 0}.tools .alt{font-size:var(--small);color:var(--mut);margin:8px 0 0;padding-top:8px;border-top:1px dashed var(--line)}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:8px 0}summary{cursor:pointer;font-weight:700;font-size:17px;color:var(--head)}details p{font-size:15.5px}
+.pill{border-radius:999px;padding:1px 9px;font-size:var(--label);font-weight:700;background:var(--teal);color:#fff;margin-left:4px}.pill.d{background:var(--sub);border:1px solid var(--line);color:var(--mut)}
+.chip{display:inline-block;border-radius:999px;padding:3px 11px;margin:3px 4px 3px 0;font-size:var(--small);font-weight:600;background:var(--sub);border:1px solid var(--line)}
+.tm{border-bottom:2px dotted var(--amber);background:rgba(242,165,65,.16);border-radius:4px;padding:0 2px;cursor:help}
+#tip{position:fixed;display:none;max-width:320px;white-space:pre-line;background:#202124;color:#fff;padding:10px 12px;border-radius:12px;font-size:var(--small);line-height:1.4;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+ul.tight{margin:6px 0;padding-left:20px}ul.tight li{margin:5px 0}
+.intro>.layout{grid-column:1/-1}
+.layout{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}.layout .lead{margin:4px 0 10px;max-width:90ch}
+.figw{overflow-x:auto;margin:8px 0}.figw svg{display:block;width:100%;min-width:860px;height:auto;font-family:var(--f)}
+.figw .lane{fill:var(--sub)}.figw .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}.figw .box.hi{stroke:var(--bar);stroke-width:2.5}
+.figw text{fill:var(--ink)}.figw .ln{font-size:15px;font-weight:700;fill:var(--head)}.figw .gl{font-size:13px;font-weight:700;fill:var(--teal);letter-spacing:.03em}
+.figw .bt{font-size:13px}.figw .b{font-size:15px;font-weight:700}.figw .st{font-size:13px;fill:var(--mut)}
+.figw .grp{stroke:var(--teal);stroke-width:2}.figw .ar{stroke:var(--bar);stroke-width:2}.figw .ah{fill:var(--bar)}
+.figw .ng,.figw .ngs{stroke:var(--amber);stroke-width:2;stroke-dasharray:5 4}.figw .aha{fill:var(--amber)}.figw .nl{font-size:14px;font-weight:700;fill:var(--amberH)}
+.figw .dt{stroke:var(--mut);stroke-width:2;stroke-dasharray:2 4}
+.figw .okb{fill:var(--teal)}.figw .scb{fill:var(--amber)}.figw .wt{fill:#fff;font-size:14px;font-weight:700}.figw .at{fill:var(--amber-ink);font-size:14px;font-weight:700}
+.figw .mk{fill:var(--amber)}.figw .mt{fill:var(--amber-ink);font-size:14px;font-weight:800}
+.legend{counter-reset:l;list-style:none;padding:0;margin:10px 0 0;display:grid;gap:10px}
+.legend li{counter-increment:l;position:relative;padding-left:38px;font-size:15.5px;line-height:1.55}
+.legend li::before{content:counter(l);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font-weight:800;font-size:14px;display:grid;place-items:center}
+@media (min-width:1000px){.legend{grid-template-columns:repeat(4,1fr);gap:16px}}
+.kpi{--h:var(--navyH);background:color-mix(in srgb,var(--h) 11%,var(--card));border-color:color-mix(in srgb,var(--h) 35%,var(--card))}
+.kpi .v{color:var(--h)}.kpi .l{color:var(--ink)}.kpi .d{color:var(--mut)}
+.q[data-p="M"]{background:color-mix(in srgb,var(--amber) 13%,var(--card));border-color:color-mix(in srgb,var(--amber) 60%,var(--card))}
+.q[data-p="S"]{background:color-mix(in srgb,var(--skyH) 9%,var(--card));border-color:color-mix(in srgb,var(--skyH) 35%,var(--card))}
+.q[data-p="N"]{border-style:dashed}
+.q[data-p="M"] .id{color:var(--amberH)}.q[data-p="S"] .id{color:var(--skyH)}.q[data-p="N"] .id{color:var(--mut)}
+.pri.S{background:var(--skyH);border-color:var(--skyH);color:var(--onph)}
+.fbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 4px}.fbar span{font-size:var(--small);font-weight:700;color:var(--mut);margin-right:2px}
+.fb{font:inherit;font-size:var(--small);font-weight:700;cursor:pointer;border-radius:999px;padding:6px 14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.fb i{font-style:normal;opacity:.7;margin-left:4px}.fb:hover{border-color:var(--bar)}.fb:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.fb.on{background:var(--navy);border-color:var(--navy);color:#fff}.fb.on[data-f="M"]{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}.fb.on[data-f="S"]{background:var(--skyH);border-color:var(--skyH);color:var(--onph)}
+.defs p{margin:0 0 12px}.defs p:last-child{margin:0}
+.fx{display:inline-block;margin:2px 0;padding:1px 9px;border-radius:8px;background:color-mix(in srgb,var(--tealH) 12%,var(--card));border:1px solid color-mix(in srgb,var(--tealH) 40%,var(--card));color:var(--tealH);font-weight:700;font-size:15px;white-space:normal}
+.figw.fl svg{min-width:520px;max-width:1000px;margin:0 auto}.flowfull .card{padding:20px 24px}.flowfull .card>p{text-align:center;margin:12px 0 0}.figw .dia{fill:var(--sub);stroke:var(--bar);stroke-width:2}.figw .b2{font-size:14px;font-weight:700}
+.figw .arT{fill:none;stroke:var(--teal);stroke-width:2}.figw .aht{fill:var(--teal)}.figw .arA{fill:none;stroke:var(--amber);stroke-width:2}.figw .aha2{fill:var(--amber)}
+.figw .lt{font-size:13px;font-weight:700;fill:var(--tealH)}.figw .la{font-size:13px;font-weight:700;fill:var(--amberH)}
+.ph .phase{color:var(--ph);font-size:13.5px}
+.ph .steps li{background:color-mix(in srgb,var(--ph) 8%,var(--card));border-color:color-mix(in srgb,var(--ph) 32%,var(--card))}
+.ph .steps li::before,.ph .steps li.L::before{background:var(--ph);color:var(--onph)}
+.ph .steps b.t{color:var(--ink)}
+.steps li.L::after{content:"beban besar";position:absolute;right:12px;top:12px;font-size:11.5px;font-weight:700;letter-spacing:.03em;padding:1px 8px;border-radius:999px;border:1px solid var(--ph,var(--amber));color:var(--ph,var(--amber))}
+.steps li.L b.t{padding-right:84px}
+.banner{background:linear-gradient(120deg,#1A73E8,#4285F4)}
+h2{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--gb) 0 60px,var(--line) 60px) 1}
+nav a:nth-child(4n+1):hover{background:var(--gb);border-color:var(--gb);color:#fff}nav a:nth-child(4n+2):hover{background:var(--gr);border-color:var(--gr);color:#fff}nav a:nth-child(4n+4):hover{background:var(--gg);border-color:var(--gg);color:#fff}
+.callout.g{background:#E6F4EA;color:#0D652D;border:1px solid #A8DAB5}.callout.g h4{color:#137333}
+.callout.a{background:#FEF7E0;color:#3C2A00;border:1px solid #FDD663}
+.outs{display:grid;gap:12px;margin:12px 0}.outs .card{margin:0}
+.out{--h:var(--navyH);border-top:4px solid var(--h)}
+.out .oh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.out .oh b{font-size:var(--h3);color:var(--h);line-height:1.3}
+.ob{flex:none;border-radius:999px;padding:1px 9px;font-size:var(--label);font-weight:700;background:var(--amber);color:var(--amber-ink)}.ob.opt{background:var(--sub);border:1px solid var(--line);color:var(--mut)}
+.out ul{margin:8px 0 0;padding-left:18px;font-size:15px;line-height:1.5}.out li{margin:4px 0}
+.out li:nth-last-child(-n+2){color:var(--mut);font-size:14px}
+@media (min-width:700px){.outs{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1280px){.outs{grid-template-columns:repeat(4,1fr)}}
+.tag.c1{background:#188038;color:#fff}.tag.c2{background:#9334E6;color:#fff}.tag.c3{background:#D93025;color:#fff}.tag.c4{background:#fff;color:#1A73E8}
+.sample td:first-child{white-space:nowrap}.note{font-size:13px;color:var(--mut);margin:6px 0 0}
+.wf{display:grid;gap:4px}
+.wl{--c:var(--navyH);position:relative;background:color-mix(in srgb,var(--c) 8%,var(--card));border:1px solid color-mix(in srgb,var(--c) 30%,var(--card));border-radius:14px;padding:10px 12px 12px}
+.wl h4{margin:0 0 10px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c)}
+.ws{display:grid;gap:22px}
+.wb{position:relative;background:var(--card);border:2px solid var(--c);border-radius:12px;padding:10px 12px 10px 52px;min-height:62px}
+.wb .n{position:absolute;left:12px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--c);color:var(--onph);font-weight:800;font-size:14px;display:grid;place-items:center}
+.wb b{display:block;font-size:15px;line-height:1.3}.wb .s{display:block;font-size:13px;color:var(--mut);margin-top:2px}
+.wb.L::before{content:"beban besar";position:absolute;top:-10px;right:10px;background:var(--amber);color:var(--amber-ink);font-size:11px;font-weight:700;padding:0 8px;border-radius:999px;line-height:18px}
+.wb:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-21px;transform:translateX(-50%);color:var(--c);font-weight:800;font-size:16px;line-height:1}
+.wa{text-align:center;font-weight:800;font-size:20px;color:var(--mut);line-height:1.2}
+.wrow,.wrow1{display:grid;gap:4px}
+.wrow>.wl:first-child{margin-bottom:24px}.wrow>.wl:first-child::after{content:"↓";position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font-weight:800;font-size:20px;color:var(--mut)}
+@media (min-width:1200px){
+.wrow{grid-template-columns:2fr 3fr;gap:30px}.wrow>.wl:first-child{margin-bottom:0}.wrow>.wl:first-child::after{content:"→";left:auto;right:-24px;bottom:auto;top:50%;transform:translateY(-50%)}
+.wrow1{grid-template-columns:2fr 3fr}
+.ws{grid-template-columns:repeat(var(--k),1fr);gap:26px}
+.wb:not(:last-child)::after{content:"→";left:auto;right:-25px;bottom:auto;top:50%;transform:translateY(-50%)}
+.wl{padding-left:8px;padding-right:8px}.ws{gap:34px}
+.wrow,.wrow1{gap:16px}.wrow>.wl:first-child::after{right:-14px;font-size:16px}
+}
+.docs code{font-size:13.5px;background:var(--soft);padding:1px 6px;border-radius:6px;white-space:nowrap}.docs td:nth-child(3){white-space:nowrap}
+/* layar lebar: nav jadi sidebar, konten dibagi kolom */
+.two{display:grid;gap:0 24px;align-items:start}.two>*{min-width:0}
+.qgrid{display:grid;gap:0 12px}.qgrid>*{min-width:0}
+@media (min-width:1000px){
+main{max-width:1480px}
+.two,.qgrid{grid-template-columns:1fr 1fr}.qgrid .theme{grid-column:1/-1}
+.kpis{grid-template-columns:repeat(6,1fr)}.tools{grid-template-columns:repeat(3,1fr)}
+.intro{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;align-items:start}.intro h3{grid-column:1/-1}.intro>p{grid-column:1}.intro>.scroll{grid-column:2;grid-row:2/span 3;margin-top:8px}
+.phases{display:grid;grid-template-columns:repeat(2,1fr);gap:0 24px}.phases>*{min-width:0}
+}
+@media (min-width:1280px){
+main{display:grid;grid-template-columns:190px minmax(0,1fr);column-gap:32px}
+main>*{grid-column:2}
+main>nav{grid-column:1;grid-row:1/span 60;align-self:start;flex-direction:column;padding-top:16px}
+main>nav a{border-radius:10px;font-size:15px;padding:8px 14px}
+.phases{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:620px){.kpis,.res{grid-template-columns:1fr 1fr}.tools{grid-template-columns:1fr}.row .n{width:78px}.banner{padding:18px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.row .b{transition:none}}
+.cc svg{display:block;width:100%;height:auto;font-family:var(--f)}.cc .gd{stroke:var(--line);stroke-width:1}.cc .ax{font-size:12.5px;fill:var(--mut)}
+.cc .tg{stroke:#A50E0E;stroke-width:2;stroke-dasharray:6 4}.cc .tgt{fill:#A50E0E;font-size:12.5px;font-weight:700}.cc .std{fill:none;stroke:#9AA0A6;stroke-width:2;stroke-dasharray:3 4}
+.cc .cur{fill:none;stroke:var(--bar);stroke-width:3}.cc .pt{fill:var(--bar)}.cc .ptA{fill:var(--amber);stroke:#3C2A00;stroke-width:1.5}.cc .lb{font-size:12.5px;font-weight:700}
+@media (max-width:620px){.cc svg{min-width:560px}.cc{overflow-x:auto}}
+.figw .rdb{fill:var(--roseH)}.figw .gyb{fill:var(--sub);stroke:var(--line);stroke-width:1.5}.figw .gt{fill:var(--mut);font-size:14px;font-weight:700}
+.row .b.g{background:var(--tealH)}.row .b.y{background:var(--amber)}.row .b.r{background:var(--roseH)}.row .sub{font-size:12px;color:var(--mut);display:block;font-weight:400}
+.row.th .b{opacity:1}.row.dim .b{opacity:.35}
+@media (min-width:1200px){.wa{display:grid;grid-template-columns:repeat(5,1fr);gap:34px;padding:0 9px}.wa.r span{grid-column:5}.wa.l span{grid-column:1}.ws.rev{direction:rtl}.ws.rev .wb{direction:ltr}.ws.rev .wb:not(:last-child)::after{content:"←";right:auto;left:-25px}}
+.tab{flex:none;font:inherit;font-size:15px;font-weight:800;cursor:pointer;background:var(--card);border:2px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 16px}
+.tab[data-t=design]{--c:var(--navy)}.tab[data-t=report]{--c:var(--teal)}
+.tab:hover{border-color:var(--c)}.tab.on{background:var(--c);border-color:var(--c);color:#fff}.tab:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.links{display:contents}.links[data-tab=design]{--ac:var(--navy)}.links[data-tab=report]{--ac:var(--teal)}
+.links a{font-size:13.5px;font-weight:600;color:var(--mut);padding:5px 12px}
+.pane code{font-size:.92em;background:var(--sub);border-radius:4px;padding:1px 5px;overflow-wrap:anywhere}
+.pane pre{background:var(--sub);border:1px solid var(--line);border-radius:12px;padding:12px 16px;overflow-x:auto;font-size:14px;line-height:1.5}.pane pre code{background:none;padding:0;overflow-wrap:normal}
+.pill.p{background:var(--amber);color:var(--amber-ink)}
+.callout a{color:inherit;font-weight:700;text-decoration:underline}
+@media (min-width:1280px){
+main>nav{gap:8px}
+.tab{border-radius:12px;font-size:16px;padding:12px 16px;text-align:left;border-left:8px solid var(--c)}
+.links{display:flex;flex-direction:column;gap:2px;margin:0 0 8px 12px;padding-left:12px;border-left:3px solid var(--ac)}
+main>nav .links a{background:none;border:0;border-radius:8px;font-size:14.5px;font-weight:600;color:var(--mut);padding:6px 10px}
+main>nav .links a:hover,main>nav .links a:focus-visible{background:var(--soft);color:var(--head)}
+}
+</style>
+
+</head>
+<body>
+<a href="https://bagusbernadi.github.io/" style="display:inline-block;margin:12px 16px;font:600 14px/1.4 'Source Sans 3',Arial,sans-serif;color:#1A73E8;text-decoration:none">← All projects / Semua project</a>
+<main>
+<nav aria-label="Project navigation"><button type="button" class="tab on" data-t="design" aria-expanded="true" aria-controls="design">Design Project</button><div class="links" data-tab="design"><a href="#s1">Background</a><a href="#s2">Business Questions</a><a href="#s3">Scorecard Logic</a><a href="#s4">Dataset</a><a href="#s5">Tools</a><a href="#s6">Work Plan</a><a href="#s7">Project Outputs</a><a href="#s8">Success Criteria</a><a href="#s9">Assumptions &amp; Limitations</a></div><button type="button" class="tab" data-t="report" aria-expanded="false" aria-controls="report">Report Project</button><div class="links" data-tab="report" hidden><a href="#rp1">Problem</a><a href="#rp2">Data</a><a href="#rp3">Analysis</a><a href="#rp4">Recommendation</a><a href="#rp5">Impact</a><a href="#rp6">Batasan</a></div></nav>
+
+<header class="banner"><h1>Project 17: Supplier Quality Scorecard</h1>
+<p class="goal"><b>Tujuan project:</b> membangun scorecard kualitas supplier dari data OK/NG per lot material yang dianonimkan, untuk menilai supplier mana yang paling sering menyebabkan NG, seberapa konsisten kualitasnya antar lot dan antar waktu, serta apakah perbedaannya signifikan, sehingga audit dan diskusi perbaikan dapat diprioritaskan ke supplier yang paling berisiko.</p>
+<div class="tags"><span class="tlab">Kategori:</span><span class="tag a">Rancangan project</span><span class="tag c1">Manufaktur (data anonim)</span><span class="tag c2">Data simulasi dianonimkan</span><span class="tag c3">SQL window function + scorecard</span></div></header>
+
+<div class="pane" id="design" data-tab="design">
+<section class="card intro">
+<h3>Project Introduction</h3>
+<p>Bayangkan rumah makan yang membeli telur dari lima pemasok. Setiap kiriman diperiksa, dan telur yang pecah atau busuk dicatat. Suatu minggu satu pemasok mengirim banyak telur busuk. Pemilik bingung: apakah pemasok itu memang buruk, atau minggu itu hanya sial?</p>
+<p>Pemilik yang teliti membuat rapor pemasok. Rapor itu tidak hanya melihat berapa telur yang busuk, tetapi juga apakah kualitasnya naik-turun antar kiriman dan apakah makin lama makin buruk. Dengan rapor itu ia tahu pemasok mana yang perlu ditegur lebih dulu.</p>
+<div class="scroll"><table><tr><th>Di rumah makan</th><th>Di lini produksi</th></tr>
+<tr><td>Pemasok telur</td><td>Supplier material (namanya diganti kode)</td></tr>
+<tr><td>Satu kiriman telur</td><td>Satu lot material</td></tr>
+<tr><td>Telur pecah atau busuk</td><td>Unit NG yang penyebabnya material</td></tr>
+<tr><td>Kualitas yang naik-turun antar kiriman</td><td>Variasi NG rate antar lot</td></tr>
+<tr><td>Minggu sial atau memang buruk</td><td>Variasi acak atau perbedaan yang signifikan secara statistik</td></tr>
+<tr><td>Rapor pemasok</td><td>Supplier scorecard dengan status hijau, kuning, merah</td></tr>
+</table></div>
+<p>Project ini membangun <b>supplier scorecard berbasis SQL</b>: data penerimaan lot dan hasil produksi dikumpulkan dalam satu database, dihitung dengan window function menjadi NG rate, ranking, dan tren, lalu digabung menjadi satu skor per supplier. Datanya adalah data simulasi yang sudah dianonimkan: nama supplier, material, dan produk diganti kode. Kata bergaris bawah putus-putus kuning bisa diklik untuk melihat artinya.</p>
+<div class="layout">
+<h3>Gambaran alur material dan penelusuran NG</h3>
+<p class="lead">Proses ini bisa dibayangkan sebagai tiga jalur. Dua jalur pertama sudah berjalan. Jalur ketiga adalah yang dibangun di project ini.</p>
+<div class="figw"><svg viewBox="0 0 1240 432" role="img" aria-label="Alur material dari supplier sampai produksi, jalur penelusuran NG ke lot yang saat ini manual, dan jalur data baru dari data lot dan NG ke database, perhitungan SQL, scorecard, lalu prioritas audit"><defs><marker id="mN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="mA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="aha" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="lane" x="0" y="8" width="1240" height="130" rx="14"/><rect class="lane" x="0" y="150" width="1240" height="140" rx="14"/><rect class="lane" x="0" y="302" width="1240" height="128" rx="14"/>
+<text class="ln" x="18" y="78">Jalur</text><text class="ln" x="18" y="96">material</text><text class="ln" x="18" y="218">Jalur</text><text class="ln" x="18" y="236">penelusuran</text><text class="ln" x="18" y="362">Jalur</text><text class="ln" x="18" y="380">data</text>
+<line class="grp" x1="150" x2="990" y1="40" y2="40"/><text class="gl" x="570" y="32" text-anchor="middle">Perjalanan satu lot material (5 supplier, 3 jenis material)</text>
+<rect class="box" x="150" y="52" width="180" height="60" rx="10"/><text class="bt" x="240" y="78" text-anchor="middle">Supplier</text><text class="bt" x="240" y="95" text-anchor="middle">mengirim lot</text>
+<line class="ar" x1="330" x2="366" y1="82" y2="82" marker-end="url(#mN)"/>
+<rect class="box" x="370" y="52" width="180" height="60" rx="10"/><text class="bt" x="460" y="78" text-anchor="middle">Incoming</text><text class="bt" x="460" y="95" text-anchor="middle">inspection</text>
+<line class="ar" x1="550" x2="586" y1="82" y2="82" marker-end="url(#mN)"/>
+<rect class="box" x="590" y="52" width="180" height="60" rx="10"/><text class="bt" x="680" y="78" text-anchor="middle">Gudang</text><text class="bt" x="680" y="95" text-anchor="middle">material</text>
+<line class="ar" x1="770" x2="806" y1="82" y2="82" marker-end="url(#mN)"/>
+<rect class="box" x="810" y="52" width="180" height="60" rx="10"/><text class="bt" x="900" y="78" text-anchor="middle">Dipakai di</text><text class="bt" x="900" y="95" text-anchor="middle">produksi</text>
+<line class="ar" x1="990" x2="1036" y1="82" y2="82" marker-end="url(#mN)"/><text class="bt" x="1042" y="87">Produk jadi</text>
+<line class="ng" x1="900" x2="900" y1="112" y2="178"/><text class="nl" x="908" y="160">unit NG karena material</text>
+<line class="ng" x1="240" x2="900" y1="178" y2="178"/><line class="ngs" x1="240" x2="240" y1="178" y2="194" marker-end="url(#mA)"/>
+<rect class="box" x="150" y="198" width="180" height="56" rx="10"/><text class="bt b" x="240" y="222" text-anchor="middle">NG dicatat</text><text class="st" x="240" y="242" text-anchor="middle">per stasiun &amp; lot</text>
+<line class="ar" x1="330" x2="376" y1="226" y2="226" marker-end="url(#mN)"/>
+<rect class="box" x="380" y="198" width="210" height="56" rx="10"/><text class="bt b" x="485" y="222" text-anchor="middle">Telusuri lot</text><text class="st" x="485" y="242" text-anchor="middle">manual, file terpisah</text>
+<line class="ar" x1="590" x2="636" y1="226" y2="226" marker-end="url(#mN)"/>
+<rect class="box" x="640" y="198" width="210" height="56" rx="10"/><text class="bt b" x="745" y="222" text-anchor="middle">Komplain supplier</text><text class="st" x="745" y="242" text-anchor="middle">hanya saat kasus besar</text>
+<rect class="box" x="150" y="336" width="150" height="62" rx="10"/><text class="bt b" x="225" y="362" text-anchor="middle">Data lot &amp; NG</text><text class="st" x="225" y="382" text-anchor="middle">dianonimkan</text>
+<line class="ar" x1="300" x2="346" y1="367" y2="367" marker-end="url(#mN)"/>
+<rect class="box hi" x="350" y="336" width="190" height="62" rx="10"/><text class="bt b" x="445" y="362" text-anchor="middle">Database</text><text class="st" x="445" y="382" text-anchor="middle">DuckDB + SQL</text>
+<line class="ar" x1="540" x2="586" y1="367" y2="367" marker-end="url(#mN)"/>
+<rect class="box hi" x="590" y="336" width="190" height="62" rx="10"/><text class="bt b" x="685" y="362" text-anchor="middle">Ranking &amp; tren</text><text class="st" x="685" y="382" text-anchor="middle">window function, uji</text>
+<line class="ar" x1="780" x2="826" y1="367" y2="367" marker-end="url(#mN)"/>
+<rect class="box hi" x="830" y="336" width="190" height="62" rx="10"/><text class="bt b" x="925" y="362" text-anchor="middle">Scorecard</text><text class="st" x="925" y="382" text-anchor="middle">Streamlit + Plotly</text>
+<line class="ar" x1="1020" x2="1056" y1="367" y2="367" marker-end="url(#mN)"/>
+<rect class="box" x="1060" y="336" width="166" height="62" rx="10"/><text class="bt b" x="1143" y="362" text-anchor="middle">Prioritas audit</text><text class="st" x="1143" y="382" text-anchor="middle">supplier berisiko</text>
+<line class="dt" x1="225" x2="225" y1="254" y2="332" marker-end="url(#mN)"/><text class="st" x="235" y="300">nama supplier, material, produk diganti kode</text>
+<text class="gl" x="685" y="422" text-anchor="middle">Bagian yang dibangun di project ini</text><line class="grp" x1="350" x2="1020" y1="406" y2="406"/>
+<circle class="mk" cx="130" cy="58" r="13"/><text class="mt" x="130" y="63" text-anchor="middle">1</text>
+<circle class="mk" cx="130" cy="204" r="13"/><text class="mt" x="130" y="209" text-anchor="middle">2</text>
+<circle class="mk" cx="380" cy="198" r="13"/><text class="mt" x="380" y="203" text-anchor="middle">3</text>
+<circle class="mk" cx="130" cy="342" r="13"/><text class="mt" x="130" y="347" text-anchor="middle">4</text></svg></div>
+<ol class="legend">
+<li><b>Jalur material.</b> Supplier mengirim lot material, lot diperiksa saat diterima, disimpan di gudang, lalu dipakai di produksi. Sebagian masalah material baru terlihat saat produksi.</li>
+<li><b>NG dicatat.</b> Unit NG yang penyebabnya material dicatat bersama stasiun dan nomor lot yang dipakai.</li>
+<li><b>Penelusuran manual saat ini.</b> Data NG dan data lot ada di file terpisah, jadi penelusuran ke supplier dilakukan manual dan biasanya hanya saat ada kasus besar.</li>
+<li><b>Jalur data baru.</b> Data lot dan NG dianonimkan, digabung di database, dihitung menjadi ranking dan tren, lalu ditampilkan sebagai scorecard untuk menentukan supplier yang perlu diaudit lebih dulu.</li>
+</ol>
+</div>
+</section>
+
+<div class="kpis">
+<div class="card kpi" style="--h:var(--navyH)"><span class="v">14</span><span class="l">pertanyaan analisis</span><span class="d">Hal yang ingin dijawab dari data, 9 di antaranya prioritas utama (bagian 2).</span></div>
+<div class="card kpi" style="--h:var(--amberH)"><span class="v">5</span><span class="l">ukuran kinerja (KPI)</span><span class="d">NG rate dengan rentang keyakinan, variasi antar lot, rolling NG rate, skor gabungan, dan NG terhindari (bagian 3).</span></div>
+<div class="card kpi" style="--h:var(--tealH)"><span class="v">12</span><span class="l">langkah pengerjaan</span><span class="d">Dari menyepakati definisi skor sampai project siap ditinjau (bagian 6).</span></div>
+<div class="card kpi" style="--h:var(--plumH)"><span class="v">5 / 3</span><span class="l">supplier / material</span><span class="d">5 supplier (SUP-A sampai SUP-E) untuk 3 jenis material.</span></div>
+<div class="card kpi" style="--h:var(--roseH)"><span class="v">±6 bulan</span><span class="l">periode data</span><span class="d">Cukup banyak lot untuk melihat konsistensi dan tren bulanan.</span></div>
+<div class="card kpi" style="--h:var(--skyH)"><span class="v">4</span><span class="l">tabel data</span><span class="d">Supplier, lot material, hasil pemakaian lot, dan riwayat skor (bagian 4).</span></div>
+</div>
+
+<h2 id="s1">1. Background<small>Kenapa tema ini dipilih</small></h2>
+<div class="card two">
+<div><h3>Latar belakang masalah</h3>
+<p>Data penerimaan lot dan data NG produksi disimpan di file yang berbeda. Penilaian supplier biasanya berdasarkan kasus terakhir yang paling diingat. Akibatnya:</p>
+<ul class="tight">
+<li>Satu lot buruk bisa membuat supplier dianggap buruk, padahal lot lainnya baik. Sebaliknya, supplier yang pelan-pelan memburuk tidak terlihat.</li>
+<li>Supplier dengan volume kecil sulit dinilai karena beberapa NG saja sudah membuat persentasenya tinggi.</li>
+<li>NG yang sebenarnya disebabkan proses atau model tertentu bisa salah dituduhkan ke supplier.</li>
+<li>Tidak ada satu angka bersama untuk dibahas dengan supplier, sehingga diskusi perbaikan sulit diukur hasilnya.</li>
+</ul></div>
+<div><h3>Alasan memilih tema ini sebagai portofolio</h3>
+<ul class="tight">
+<li><b>Dekat dengan pekerjaan sehari-hari.</b> Penelusuran NG ke lot material adalah kegiatan rutin, dan datanya tersedia dari pekerjaan.</li>
+<li><b>Menunjukkan skill SQL tingkat lanjut.</b> CTE, RANK(), DENSE_RANK(), LAG(), dan rolling window, ditambah uji chi-square dan rentang keyakinan Wilson.</li>
+<li><b>Tingkat kesulitan sedang.</b> Query dan statistiknya baku, tetapi perlu keputusan yang hati-hati soal batas sampel dan bobot skor.</li>
+<li><b>Terhubung dengan project lain.</b> Memakai pola KPI dari Project 3 (Yield, Rework &amp; Defect Tracking System). Pengujian faktor penyebab yang lebih luas dikerjakan di Project 29 (Root Cause Analysis Statistics), dan anonimisasi memakai Project 24.</li>
+</ul></div>
+</div>
+
+<h2 id="s2">2. Business Questions<small>Satu pertanyaan utama, dipecah menjadi pertanyaan yang lebih kecil</small></h2>
+<div class="callout a"><h4>Pertanyaan utama</h4>Supplier mana yang paling sering menghasilkan NG, apakah kualitasnya konsisten antar lot dan antar waktu, dan apakah perbedaannya signifikan atau hanya variasi acak?</div>
+<p class="how">Pertanyaan utama dipecah per tema. Label "Utama" berarti wajib dijawab dan dikerjakan lebih dulu. "Pendukung" memperdalam hasil. "Tambahan" dikerjakan jika waktu tersisa. Teks abu-abu di bawah tiap pertanyaan adalah cara menjawabnya.</p>
+<div class="fbar" role="group" aria-label="Filter pertanyaan"><span>Tampilkan:</span><button type="button" class="fb on" data-f="*">Semua <i>14</i></button><button type="button" class="fb" data-f="M">Utama <i>9</i></button><button type="button" class="fb" data-f="S">Pendukung <i>4</i></button><button type="button" class="fb" data-f="N">Tambahan <i>1</i></button></div>
+<div class="qgrid" id="qg">
+<p class="theme">NG rate: seberapa sering gagal</p>
+<div class="q" data-p="M"><span class="id">Q1</span><span>Supplier mana yang punya NG rate tertinggi untuk tiap jenis material?<span class="pri M">Utama</span></span><span class="m">NG rate per supplier dengan rentang keyakinan Wilson</span></div>
+<div class="q" data-p="M"><span class="id">Q2</span><span>Apakah perbedaan NG rate antar supplier signifikan, atau hanya variasi acak?<span class="pri M">Utama</span></span><span class="m">Uji chi-square, effect size</span></div>
+<div class="q" data-p="M"><span class="id">Q3</span><span>Bagaimana ranking supplier setiap bulan, dan apakah ranking itu berubah?<span class="pri M">Utama</span></span><span class="m">RANK() / DENSE_RANK() per bulan</span></div>
+
+<p class="theme">Konsistensi: sama baiknya antar lot</p>
+<div class="q" data-p="M"><span class="id">Q4</span><span>Seberapa besar variasi NG rate antar lot untuk tiap supplier, dan lot mana yang menyimpang?<span class="pri M">Utama</span></span><span class="m">Koefisien variasi antar lot, p-chart per lot</span></div>
+<div class="q" data-p="S"><span class="id">Q5</span><span>Berapa persen lot tiap supplier yang melewati ambang NG yang disepakati?<span class="pri S">Pendukung</span></span><span class="m">Persen lot di atas ambang</span></div>
+
+<p class="theme">Tren: membaik atau memburuk</p>
+<div class="q" data-p="M"><span class="id">Q6</span><span>Bagaimana rolling NG rate 4 minggu tiap supplier, dan siapa yang memburuk?<span class="pri M">Utama</span></span><span class="m">Rolling window 4 minggu, perubahan dengan LAG()</span></div>
+<div class="q" data-p="S"><span class="id">Q7</span><span>Apakah perubahan NG rate antar bulan cukup besar untuk dianggap nyata?<span class="pri S">Pendukung</span></span><span class="m">Uji dua proporsi bulan ini vs bulan lalu</span></div>
+
+<p class="theme">Konteks: agar tidak salah menuduh</p>
+<div class="q" data-p="S"><span class="id">Q8</span><span>Apakah NG suatu supplier terkumpul di model atau stasiun tertentu?<span class="pri S">Pendukung</span></span><span class="m">Tabel silang supplier × model × stasiun</span></div>
+<div class="q" data-p="S"><span class="id">Q9</span><span>Berapa jumlah unit minimum agar NG rate supplier bisa dinilai dengan cukup yakin?<span class="pri S">Pendukung</span></span><span class="m">Lebar rentang Wilson terhadap jumlah unit</span></div>
+
+<p class="theme">Scorecard: satu nilai untuk dibahas</p>
+<div class="q" data-p="M"><span class="id">Q10</span><span>Berapa skor gabungan dan status hijau, kuning, atau merah setiap supplier?<span class="pri M">Utama</span></span><span class="m">Skor tertimbang NG rate, konsistensi, tren</span></div>
+<div class="q" data-p="N"><span class="id">Q11</span><span>Apakah urutan supplier tetap sama jika bobot skor diubah?<span class="pri">Tambahan</span></span><span class="m">Analisis sensitivitas bobot</span></div>
+
+<p class="theme">Dampak: jika supplier terburuk membaik</p>
+<div class="q" data-p="M"><span class="id">Q12</span><span>Berapa unit NG terhindari per bulan jika supplier terburuk mencapai rata-rata supplier lain?<span class="pri M">Utama</span></span><span class="m">(NG rate terburuk − rata-rata lain) × volume (estimasi)</span></div>
+
+<p class="theme">Validitas: apakah datanya bisa dipercaya</p>
+<div class="q" data-p="M"><span class="id">Q13</span><span>Berapa persen data tidak valid (lot tanpa supplier, NG tanpa lot, duplikat), dan bagaimana ditangani?<span class="pri M">Utama</span></span><span class="m">Audit kualitas data, log cleaning</span></div>
+<div class="q" data-p="M"><span class="id">Q14</span><span>Apakah NG rate dan ranking dari SQL sama dengan hitungan manual di Excel?<span class="pri M">Utama</span></span><span class="m">Cek silang SQL vs Excel</span></div>
+</div>
+
+<h2 id="s3">3. Scorecard Logic<span class="add">Komponen tambahan</span><small>Bagaimana data lot menjadi status hijau, kuning, atau merah</small></h2>
+<p class="how">Supplier dinilai dari tiga hal: seberapa sering NG, seberapa konsisten antar lot, dan apakah makin baik atau makin buruk. Arahkan kursor atau klik kata yang diberi garis bawah kuning untuk melihat pengertian dan rumusnya.</p>
+<div class="flowfull"><h3>Alur penilaian setiap supplier</h3>
+<div class="card"><div class="figw fl"><svg viewBox="0 88 900 204" role="img" aria-label="Diagram keputusan: data lot diperiksa apakah sampelnya cukup; jika tidak, supplier belum dinilai. Jika cukup, skor tertimbang dihitung lalu dibandingkan dengan ambang 80 dan 60 untuk menentukan status hijau, kuning, atau merah"><defs><marker id="fN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0 0L10 5L0 10z"/></marker><marker id="fT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="aht" d="M0 0L10 5L0 10z"/></marker><marker id="fA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="aha2" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="box" x="8" y="122" width="96" height="52" rx="10"/><text class="b2" x="56" y="153" text-anchor="middle">Lot data</text>
+<line class="ar" x1="104" x2="122" y1="148" y2="148" marker-end="url(#fN)"/>
+<polygon class="dia" points="124,148 200,100 276,148 200,196"/><text class="b2" x="200" y="144" text-anchor="middle">Enough</text><text class="b2" x="200" y="161" text-anchor="middle">sample?</text>
+<line class="arT" x1="276" x2="298" y1="148" y2="148" marker-end="url(#fT)"/><text class="lt" x="287" y="138" text-anchor="middle">Ya</text>
+<rect class="box" x="300" y="122" width="120" height="52" rx="10"/><text class="b2" x="360" y="144" text-anchor="middle">Weighted</text><text class="b2" x="360" y="162" text-anchor="middle">score</text>
+<line class="ar" x1="420" x2="442" y1="148" y2="148" marker-end="url(#fN)"/>
+<polygon class="dia" points="444,148 520,100 596,148 520,196"/><text class="b2" x="520" y="153" text-anchor="middle">Score ≥ 80?</text>
+<line class="arA" x1="596" x2="622" y1="148" y2="148" marker-end="url(#fA)"/><text class="la" x="609" y="138" text-anchor="middle">Tidak</text>
+<polygon class="dia" points="624,148 700,100 776,148 700,196"/><text class="b2" x="700" y="153" text-anchor="middle">Score ≥ 60?</text>
+<line class="arA" x1="776" x2="798" y1="148" y2="148" marker-end="url(#fA)"/><text class="la" x="787" y="138" text-anchor="middle">Ya</text>
+<rect class="scb" x="800" y="126" width="92" height="44" rx="22"/><text class="at" x="846" y="153" text-anchor="middle">Yellow</text>
+<polyline class="arA" points="200,196 200,236" marker-end="url(#fA)"/><text class="la" x="210" y="222">Tidak</text>
+<polyline class="arT" points="520,196 520,236" marker-end="url(#fT)"/><text class="lt" x="530" y="222">Ya</text>
+<polyline class="arA" points="700,196 700,236" marker-end="url(#fA)"/><text class="la" x="710" y="222">Tidak</text>
+<rect class="gyb" x="110" y="240" width="180" height="44" rx="22"/><text class="gt" x="200" y="267" text-anchor="middle">Not rated yet</text>
+<rect class="okb" x="450" y="240" width="140" height="44" rx="22"/><text class="wt" x="520" y="267" text-anchor="middle">Green</text>
+<rect class="rdb" x="620" y="240" width="160" height="44" rx="22"/><text class="wt" x="700" y="267" text-anchor="middle">Red: audit</text></svg></div>
+<p>Supplier dengan data terlalu sedikit tidak diberi status, agar beberapa NG kebetulan tidak langsung membuatnya merah.</p></div></div>
+
+<h3>Kenapa bobot skor harus disepakati di awal</h3>
+<p class="how">Setiap batang adalah skor gabungan satu supplier (angka contoh, bukan hasil dari data). Skor dihitung dari tiga sub-skor 0–100: NG rate, konsistensi antar lot, dan tren. Geser slider untuk mengubah bobot NG rate. Sisa bobot dibagi rata untuk konsistensi dan tren. Perhatikan supplier mana yang berubah status.</p>
+<div class="card"><div id="bars"></div>
+<div class="ctl"><label for="sl">Bobot NG rate</label><input id="sl" type="range" min="20" max="80" step="10" value="50"><output id="slo" for="sl">50%</output></div>
+<div class="res"><div>Skor terendah<b id="r1"></b></div><div>Status merah<b id="r2"></b></div><div>Urutan sama dengan bobot 50%<b id="r3"></b></div></div>
+<p id="ins" style="margin:12px 0 0;font-size:15.5px"></p></div>
+
+<h2 id="s4">4. Dataset<small>Data lot dan NG dari pekerjaan nyata yang sudah dianonimkan</small></h2>
+<div class="two"><div class="card">
+<p><b>Kenapa simulasi yang dianonimkan?</b> Project ini tidak memakai data perusahaan. Generator membuat data penerimaan lot dan NG bernama karangan dengan pola yang ditanam (supplier terburuk, sedikit lot penyumbang banyak NG, satu supplier yang memburuk), lalu data itu dianonimkan seperti data kerja: nama supplier diganti kode (SUP-A sampai SUP-E), nama material diganti kode umum (MAT-1 sampai MAT-3), nomor lot diganti kode acak, nama produk dan stasiun diganti kode, dan jumlah unit dikalikan faktor rahasia (persentase tetap sama). Karena polanya ditanam sendiri, hasil membuktikan metode bekerja, bukan kondisi pabrik.</p>
+<p><b>Ukuran:</b> 5 supplier, 3 jenis material, sekitar 6 bulan. Perkiraan ±1.200 lot dan ±10.000 baris pemakaian lot per stasiun per hari. Jumlah pastinya diketahui setelah data dikumpulkan dan dianonimkan.</p>
+</div>
+<div class="callout g"><h4>Hipotesis yang akan diuji (belum terbukti)</h4>
+<p>1. Satu supplier punya NG rate yang lebih tinggi secara signifikan untuk jenis material yang sama.</p>
+<p>2. Sebagian besar NG suatu supplier berasal dari sedikit lot, bukan merata di semua lot.</p>
+<p>3. Satu supplier memburuk dalam beberapa bulan terakhir, terlihat dari rolling NG rate.</p>
+<p>4. Sebagian perbedaan antar supplier hilang setelah model dan stasiun pemakai diperhitungkan.</p>
+<p>5. Supplier dengan volume kecil punya rentang keyakinan yang terlalu lebar untuk diberi status.</p></div></div>
+
+<h3>Empat tabel yang akan dibuat</h3>
+<p class="how">Data disimpan dalam beberapa tabel yang saling terhubung lewat kolom yang sama (misalnya lot_code dan supplier_code). Satu lot bisa dipakai di beberapa hari dan stasiun, jadi hasil pemakaiannya disimpan di tabel terpisah.</p>
+<div class="scroll"><table>
+<tr><th>Tabel</th><th>Isi (1 baris = …)</th><th>Kolom utama</th></tr>
+<tr><td><b>dim_supplier</b></td><td>Satu supplier (tabel referensi)</td><td>supplier_code, material_code, active_from</td></tr>
+<tr><td><b>material_lot</b></td><td>Satu lot material yang diterima</td><td>lot_code, supplier_code, material_code, receive_date, lot_qty, incoming_result</td></tr>
+<tr><td><b>lot_usage</b></td><td>Pemakaian satu lot di satu stasiun, satu model, satu hari</td><td>lot_code, date, station_code, model_code, input_qty, ng_material_qty</td></tr>
+<tr><td><b>scorecard_monthly</b></td><td>Skor satu supplier untuk satu bulan</td><td>month, supplier_code, ng_rate, ci_low, ci_high, lot_cv, trend, score, status</td></tr>
+</table></div>
+
+<div class="two"><div><h3>Contoh isi tabel lot_usage</h3>
+<div class="scroll"><table class="sample"><tr><th>date</th><th>lot_code</th><th>station_code</th><th>model_code</th><th>input_qty</th><th>ng_material_qty</th></tr>
+<tr><td>2026-03-02</td><td>L-7F2A</td><td>ST-B</td><td>M-2</td><td>480</td><td>6</td></tr>
+<tr><td>2026-03-02</td><td>L-91C4</td><td>ST-D</td><td>M-1</td><td>520</td><td>1</td></tr>
+<tr><td>2026-03-03</td><td>L-7F2A</td><td>ST-B</td><td>M-2</td><td>455</td><td>9</td></tr></table></div>
+<p class="note">Angka karangan, bukan data asli.</p></div>
+
+<div class="card"><p style="margin:0 0 6px"><b>Kode yang dipakai</b>:</p>
+<span class="chip">SUP-A … SUP-E</span><span class="chip">MAT-1 · MAT-2 · MAT-3</span><span class="chip">M-1 · M-2 · M-3 (model)</span><span class="chip">ST-A … ST-F (stasiun)</span>
+<p style="margin:10px 0 6px"><b>Sub-skor scorecard</b> (usulan awal):</p>
+<span class="chip">NG rate (0–100)</span><span class="chip">Konsistensi antar lot (0–100)</span><span class="chip">Tren 3 bulan (0–100)</span>
+<p style="margin:10px 0 4px"><b>Ambang status</b> (usulan awal): skor ≥ 80 hijau, 60–79 kuning, &lt; 60 merah. Supplier dengan kurang dari 2.000 unit atau 10 lot dalam periode penilaian belum diberi status.</p></div></div>
+
+<h2 id="s5">5. Tools<small>Alat yang dipakai dan alasannya</small></h2>
+<div class="tools">
+<div class="card"><b>DuckDB + SQL</b><p class="r">Inti project. CTE dan window function (RANK, DENSE_RANK, LAG, rolling 4 minggu) menghitung NG rate, ranking, tren, dan skor. Semua disimpan sebagai view.</p><p class="alt">Gratis, tanpa server, mendukung window function lengkap. Konsisten dengan project lain.</p></div>
+<div class="card"><b>Python (pandas, SciPy)</b><p class="r">Menganonimkan dan membersihkan data, menghitung rentang keyakinan Wilson, uji chi-square, dan analisis sensitivitas bobot.</p><p class="alt">SciPy dan statsmodels menyediakan uji statistik siap pakai.</p></div>
+<div class="card"><b>Excel</b><p class="r">Cek silang NG rate dan ranking beberapa supplier secara manual (Q14).</p><p class="alt">Alat yang sudah dipakai tim, sehingga hasil mudah diverifikasi.</p></div>
+<div class="card"><b>Streamlit + Plotly</b><p class="r">Dashboard scorecard: kartu status per supplier, tren rolling NG rate, p-chart per lot, dan detail per model dan stasiun.</p><p class="alt">Daftar portofolio menulis Power BI / Streamlit. Streamlit dipilih karena bisa dipublikasikan gratis tanpa akun work/school.</p></div>
+<div class="card"><b>Skrip anonimisasi (Python)</b><p class="r">Mengganti nama supplier, material, lot, model, dan stasiun dengan kode, lalu menyamarkan jumlah unit.</p><p class="alt">Bisa memakai ulang pipeline dari Project 24.</p></div>
+<div class="card"><b>GitHub + Markdown</b><p class="r">Menyimpan kode, query, data anonim, dan README yang wajib memuat definisi skor dan alasan bobot.</p><p class="alt">Tabel pemetaan kode tidak pernah di-commit.</p></div>
+</div>
+
+<h2 id="s6">6. Work Plan<small>Setiap tahap punya warna sendiri. Label "beban besar" = langkah yang paling banyak memakan waktu</small></h2>
+<p class="how">Urutannya seperti membuat rapor sekolah: sepakati dulu cara menilai, kumpulkan nilai ulangan, hitung nilai akhir, baru bagikan rapor. Setiap langkah memakai hasil langkah sebelumnya.</p>
+<h3>Alur tahapan kerja</h3>
+<div class="card"><div class="wf">
+<div class="wrow"><div class="wl" style="--c:var(--navyH)"><h4>Tahap A · Perencanaan</h4><div class="ws" style="--k:2"><div class="wb"><span class="n">1</span><b>Definisi skor &amp; ambang</b><span class="s">dokumen scorecard</span></div><div class="wb"><span class="n">2</span><b>Struktur tabel &amp; aturan anonim</b><span class="s">kamus data</span></div></div></div><div class="wl" style="--c:var(--tealH)"><h4>Tahap B · Menyiapkan data</h4><div class="ws" style="--k:3"><div class="wb L"><span class="n">3</span><b>Menganonimkan data</b><span class="s">data anonim</span></div><div class="wb"><span class="n">4</span><b>Membersihkan &amp; menautkan lot</b><span class="s">Q13 · log cleaning</span></div><div class="wb"><span class="n">5</span><b>Memasukkan ke database</b><span class="s">file DuckDB</span></div></div></div></div>
+<div class="wa r"><span>↓</span></div>
+<div class="wl" style="--c:var(--plumH)"><h4>Tahap C · Menghitung dan menganalisis</h4><div class="ws rev" style="--k:5"><div class="wb L"><span class="n">6</span><b>Query window function</b><span class="s">Q1, Q3, Q6</span></div><div class="wb"><span class="n">7</span><b>Cek silang Excel</b><span class="s">Q14</span></div><div class="wb"><span class="n">8</span><b>Uji statistik</b><span class="s">Q2, Q4–Q5, Q7–Q9</span></div><div class="wb L"><span class="n">9</span><b>Skor &amp; sensitivitas</b><span class="s">Q10–Q11</span></div><div class="wb"><span class="n">10</span><b>Hitung dampak</b><span class="s">Q12</span></div></div></div>
+<div class="wa l"><span>↓</span></div>
+<div class="wrow1"><div class="wl" style="--c:var(--roseH)"><h4>Tahap D · Menyajikan</h4><div class="ws" style="--k:2"><div class="wb L"><span class="n">11</span><b>Dashboard scorecard</b><span class="s">link dashboard</span></div><div class="wb"><span class="n">12</span><b>README &amp; finalisasi</b><span class="s">repositori siap</span></div></div></div></div>
+</div>
+<p class="note" style="text-align:center;margin-top:12px">Panah menunjukkan urutan pengerjaan. Angka di kotak sama dengan nomor langkah di bawah.</p></div>
+
+<div class="phases"><div class="ph" style="--ph:var(--navyH)"><p class="phase">Tahap A · Perencanaan</p>
+<ol class="steps">
+<li><b class="t">Menyepakati definisi skor dan ambang</b><p>Menetapkan cara menghitung tiga sub-skor, bobot awal, ambang hijau/kuning/merah, dan batas minimum sampel.</p><p class="meta">Hasil: dokumen definisi scorecard · Alat: Markdown</p></li>
+<li><b class="t">Merancang tabel dan aturan anonimisasi</b><p>Menentukan 4 tabel, kolom penghubung, dan kolom mana yang diganti kode atau disamarkan.</p><p class="meta">Hasil: kamus data dan aturan anonimisasi · Alat: Markdown</p></li>
+</ol></div>
+<div class="ph" style="--ph:var(--tealH)"><p class="phase">Tahap B · Menyiapkan data</p>
+<ol class="steps" start="3" style="counter-reset:s 2">
+<li class="L"><b class="t">Menganonimkan data kerja</b><p>Mengumpulkan data penerimaan lot dan NG produksi, lalu menjalankan skrip anonimisasi dan memeriksa tidak ada nama asli yang tersisa.</p><p class="meta">Hasil: data anonim dan skrip anonimisasi · Alat: Python</p></li>
+<li><b class="t">Membersihkan data dan menautkan lot</b><p>Menautkan setiap NG ke lot dan supplier, lalu menandai NG tanpa lot, lot tanpa supplier, dan baris ganda (Q13).</p><p class="meta">Hasil: data bersih dan log cleaning · Alat: Python (pandas)</p></li>
+<li><b class="t">Memasukkan data ke database</b><p>Memuat data bersih ke DuckDB dan menambahkan aturan pengecekan, misalnya NG tidak boleh melebihi input.</p><p class="meta">Hasil: file database · Alat: DuckDB</p></li>
+</ol></div>
+<div class="ph" style="--ph:var(--plumH)"><p class="phase">Tahap C · Menghitung dan menganalisis</p>
+<ol class="steps" style="counter-reset:s 5">
+<li class="L"><b class="t">Menulis query window function</b><p>Menghitung NG rate per supplier, ranking bulanan dengan RANK(), rolling NG rate 4 minggu, dan perubahan antar bulan dengan LAG() (Q1, Q3, Q6).</p><p class="meta">Hasil: kumpulan view · Alat: SQL</p></li>
+<li><b class="t">Cek silang dengan Excel</b><p>Menghitung ulang NG rate dan ranking dua bulan secara manual dan memastikan hasilnya sama (Q14).</p><p class="meta">Hasil: lembar cek silang · Alat: Excel</p></li>
+<li><b class="t">Uji statistik</b><p>Rentang keyakinan Wilson, uji chi-square antar supplier, variasi antar lot, uji perubahan bulanan, dan pengaruh model/stasiun (Q2, Q4–Q5, Q7–Q9).</p><p class="meta">Hasil: tabel hasil uji · Alat: Python (SciPy)</p></li>
+<li class="L"><b class="t">Menghitung skor dan menguji sensitivitas</b><p>Menggabungkan sub-skor menjadi skor dan status, lalu mengulang dengan beberapa bobot untuk melihat apakah urutan supplier berubah (Q10–Q11).</p><p class="meta">Hasil: tabel scorecard dan sensitivitas · Alat: SQL, Python</p></li>
+<li><b class="t">Menghitung dampak</b><p>Mengestimasi unit NG terhindari jika supplier terburuk mencapai rata-rata supplier lain (Q12). Angka diberi label estimasi.</p><p class="meta">Hasil: tabel skenario · Alat: Python (pandas)</p></li>
+</ol></div>
+<div class="ph" style="--ph:var(--roseH)"><p class="phase">Tahap D · Menyajikan</p>
+<ol class="steps" style="counter-reset:s 10">
+<li class="L"><b class="t">Membuat dashboard scorecard</b><p>Dashboard 3 halaman: Scorecard (status semua supplier), Detail Supplier (tren, p-chart per lot, model dan stasiun), dan Metodologi (definisi skor dan bobot).</p><p class="meta">Hasil: link dashboard · Alat: Streamlit, Plotly</p></li>
+<li><b class="t">Menulis README, rekomendasi, dan finalisasi</b><p>Menulis masalah, data, analisis, rekomendasi audit, dampak, batasan, serta definisi skor dan alasan bobot.</p><p class="meta">Hasil: repositori GitHub siap ditinjau · Alat: Markdown, GitHub</p></li>
+</ol></div></div>
+
+<h2 id="s7">7. Project Outputs<span class="add">Komponen tambahan</span><small>Hasil nyata yang bisa dibuka, dibaca, atau dipakai ulang setelah project selesai</small></h2>
+<p class="how">Setiap kartu adalah satu output. Label "Utama" berarti wajib dibuat, "Opsional" dibuat jika waktu tersisa.</p>
+<div class="outs"><div class="card out" style="--h:var(--navyH)"><div class="oh"><b>Dashboard scorecard</b><span class="ob">Utama</span></div><ul><li>Halaman web 3 bagian: Scorecard, Detail Supplier, dan Metodologi.</li><li>Filter jenis material, bulan, model, dan stasiun.</li><li>Bentuk: link publik (Streamlit Community Cloud).</li><li>Untuk: tim quality dan purchasing yang menilai supplier.</li></ul></div><div class="card out" style="--h:var(--roseH)"><div class="oh"><b>Rapor supplier bulanan</b><span class="ob">Utama</span></div><ul><li>Satu halaman per supplier: skor, status, tren, dan lot yang menyimpang.</li><li>Siap dipakai sebagai bahan diskusi dengan supplier.</li><li>Bentuk: file PDF.</li><li>Untuk: rapat dengan supplier dan manajemen.</li></ul></div><div class="card out" style="--h:var(--tealH)"><div class="oh"><b>Database &amp; query SQL</b><span class="ob">Utama</span></div><ul><li>File DuckDB berisi 4 tabel anonim yang sudah bersih.</li><li>Query dengan CTE dan window function yang diberi komentar.</li><li>Bentuk: file .duckdb dan folder query .sql.</li><li>Untuk: recruiter yang menilai kemampuan SQL.</li></ul></div><div class="card out" style="--h:var(--plumH)"><div class="oh"><b>Skrip anonimisasi</b><span class="ob">Utama</span></div><ul><li>Skrip yang mengganti nama dengan kode dan menyamarkan jumlah unit.</li><li>Dilengkapi pengecekan bahwa tidak ada nama asli yang tersisa.</li><li>Bentuk: skrip .py.</li><li>Untuk: menyiapkan data kerja lain sebelum dibagikan.</li></ul></div><div class="card out" style="--h:var(--skyH)"><div class="oh"><b>Notebook analisis</b><span class="ob">Utama</span></div><ul><li>Langkah analisis Q1–Q14 dengan grafik dan penjelasan singkat.</li><li>Mencatat uji statistik dan analisis sensitivitas bobot.</li><li>Bentuk: Jupyter Notebook (.ipynb).</li><li>Untuk: pembaca teknis yang ingin melihat cara angka dihitung.</li></ul></div><div class="card out" style="--h:var(--amberH)"><div class="oh"><b>One-sheet infografik</b><span class="ob">Utama</span></div><ul><li>Ringkasan satu halaman: status semua supplier, supplier prioritas, dan estimasi NG terhindari.</li><li>Bisa dipahami dalam waktu kurang dari 1 menit.</li><li>Bentuk: file PDF dan PNG.</li><li>Untuk: manajemen dan recruiter.</li></ul></div><div class="card out" style="--h:var(--navyH)"><div class="oh"><b>README &amp; repositori GitHub</b><span class="ob">Utama</span></div><ul><li>Laporan temuan, rekomendasi, dampak, batasan, definisi skor, dan alasan bobot.</li><li>Dilengkapi petunjuk cara menjalankan ulang project.</li><li>Bentuk: link repositori GitHub.</li><li>Untuk: recruiter dan reviewer portofolio.</li></ul></div><div class="card out" style="--h:var(--tealH)"><div class="oh"><b>Slide presentasi</b><span class="ob opt">Opsional</span></div><ul><li>5–7 slide yang menceritakan masalah, pendekatan, temuan, dan rekomendasi.</li><li>Bentuk: PDF atau PowerPoint.</li><li>Untuk: presentasi saat wawancara kerja.</li></ul></div></div>
+
+<h3>Daftar dokumen yang akan dihasilkan</h3>
+<p class="how">Nama file adalah usulan awal dan bisa disesuaikan. Tabel diurutkan menurut tahap pengerjaan (A sampai D). Data sebelum anonymization, tabel pemetaan kode, dan file database tidak di-commit ke GitHub.</p>
+<div class="scroll"><table class="docs"><tr><th>Nama dokumen</th><th>Isi</th><th>Tahap</th><th>Label</th></tr>
+<tr><td><code>docs/scorecard_definition.md</code></td><td>Definisi sub-skor, bobot, ambang status, dan batas minimum sampel</td><td>Tahap A</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>docs/data_dictionary.md</code></td><td>Kamus data, diagram 4 tabel, dan aturan anonimisasi</td><td>Tahap A</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>scripts/anonymize.py</code></td><td>Skrip anonimisasi dan pengecekan nama yang tersisa</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>data/private/</code></td><td>Data asli dan tabel pemetaan kode. Tidak di-commit (.gitignore)</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>data/anon/*.csv</code></td><td>Data yang sudah dianonimkan</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>scripts/clean_data.py</code></td><td>Skrip pembersihan dan penautan lot</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>docs/cleaning_log.md</code></td><td>Catatan baris bermasalah dan keputusannya</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>supplier.duckdb</code></td><td>File database. Tidak di-commit, dibuat ulang dari skrip</td><td>Tahap B</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>sql/</code></td><td>Query NG rate, ranking, rolling, dan skor</td><td>Tahap C</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>outputs/crosscheck.xlsx</code></td><td>Cek silang SQL vs hitungan manual Excel</td><td>Tahap C</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>notebooks/analysis.ipynb</code></td><td>Analisis Q1–Q14 dengan grafik</td><td>Tahap C</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>outputs/*.csv</code></td><td>Hasil uji, scorecard, sensitivitas, dan skenario dampak</td><td>Tahap C</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>dashboard/app.py</code></td><td>Aplikasi dashboard Streamlit (3 halaman)</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>outputs/supplier_report_*.pdf</code></td><td>Rapor supplier bulanan</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>requirements.txt</code></td><td>Daftar library Python yang dibutuhkan</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>outputs/infographic.pdf / .png</code></td><td>One-sheet infografik</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>README.md</code></td><td>Laporan temuan, rekomendasi, dampak, batasan, dan definisi skor</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>index.html</code></td><td>Halaman rancangan project ini (GitHub Pages)</td><td>Tahap D</td><td><span class="ob">Utama</span></td></tr>
+<tr><td><code>slides/presentation.pdf</code></td><td>Slide presentasi wawancara</td><td>Tahap D</td><td><span class="ob opt">Opsional</span></td></tr></table></div>
+
+<h2 id="s8">8. Success Criteria<span class="add">Komponen tambahan</span><small>Kapan project dianggap selesai dan berhasil</small></h2>
+<div class="card"><h3>Project dianggap berhasil jika</h3>
+<ul class="tight">
+<li>Kesembilan pertanyaan berlabel "Utama" terjawab dengan angka dari data.</li>
+<li>NG rate dan ranking dari SQL sama dengan hitungan manual Excel pada bulan yang dicek.</li>
+<li>Setiap status merah didukung hasil uji yang signifikan, bukan hanya angka persentase.</li>
+<li>Kelima hipotesis diputuskan terbukti, tidak terbukti, atau belum bisa disimpulkan, beserta alasannya.</li>
+<li>Orang awam bisa membuka dashboard dan menyebutkan supplier prioritas audit dalam waktu kurang dari 1 menit.</li>
+<li>Checklist standar terpenuhi: pertanyaan bisnis, data cleaning, analisis SQL, dashboard ter-deploy, README berisi insight dan rekomendasi.</li>
+</ul></div>
+
+<h2 id="s9">9. Assumptions &amp; Limitations<span class="add">Komponen tambahan</span><small>Keputusan yang sudah diambil dan hal yang perlu diwaspadai</small></h2>
+<div class="two"><div><details open><summary>Jenis data: data kerja dianonimkan <span class="pill">Sudah Anda setujui</span></summary><p>Data berasal dari catatan lot dan NG nyata, tanpa unsur yang mengenali produk, supplier, atau perusahaan. Izin pemakaian data dari perusahaan tetap perlu dipastikan sebelum repositori dipublikasikan.</p></details>
+<details><summary>Tools: DuckDB + Streamlit + Plotly <span class="pill">Sudah Anda setujui</span></summary><p>Daftar portofolio menulis DuckDB/SQLite, Python, dan Power BI / Streamlit. DuckDB dan Streamlit dipilih, Power BI tidak dipakai.</p></details></div>
+<div>
+<details><summary>Ruang lingkup <span class="pill d">Usulan awal</span></summary><p>5 supplier, 3 jenis material, ±6 bulan. Hanya NG dengan kategori penyebab material yang dihitung. Bobot awal: NG rate 50%, konsistensi 25%, tren 25%. Dampak dihitung dalam unit, belum dalam rupiah.</p></details>
+<details><summary>Hal yang perlu diwaspadai <span class="pill d">Usulan awal</span></summary>
+<p><b>Atribusi penyebab.</b> Kesimpulan bergantung pada ketepatan kategori "NG karena material". Jika kategori ini sering salah isi, hasilnya bisa menuduh supplier secara keliru.</p>
+<p><b>Lot dipakai bersamaan.</b> Jika satu unit memakai beberapa lot, NG tidak bisa ditautkan ke satu supplier saja. Aturan pembagian perlu disepakati.</p>
+<p><b>Bobot bersifat subjektif.</b> Urutan supplier bisa berubah jika bobot diubah, sehingga analisis sensitivitas wajib ditampilkan.</p>
+<p><b>Pola belum tentu penyebab.</b> NG rate tinggi bisa karena cara pakai material di stasiun tertentu. Pengujian faktor penyebab dikerjakan di Project 29.</p></details></div></div>
+</div>
+
+<div class="pane" id="report" data-tab="report" hidden>
+<div class="callout a"><h4>Status Report Project</h4><p>Laporan hasil diisi setelah analisis dikerjakan. Sudah ditulis: Problem, Data, Analysis, Recommendation, Impact, Batasan. Rancangan lengkap ada di tab <a href="#design">Design Project</a>.</p></div>
+<div class="scroll"><table><tr><th>Bagian</th><th>Status</th><th>Diisi setelah</th></tr>
+<tr><td><b>Problem</b></td><td><span class="pill">Draft</span></td><td>Sudah ditulis dari rancangan</td></tr>
+<tr><td><b>Data</b></td><td><span class="pill">Draft</span></td><td>Tahap B, langkah 3 sampai 5</td></tr>
+<tr><td><b>Analysis</b></td><td><span class="pill">Draft</span></td><td>Tahap C, langkah 6 sampai 10</td></tr>
+<tr><td><b>Recommendation</b></td><td><span class="pill">Draft</span></td><td>Tahap D, langkah 11 sampai 12</td></tr>
+<tr><td><b>Impact</b></td><td><span class="pill">Draft</span></td><td>Tahap C, langkah 6 sampai 10</td></tr>
+<tr><td><b>Batasan</b></td><td><span class="pill">Draft</span></td><td>Diperbarui setelah Tahap B (langkah 3 sampai 5)</td></tr>
+</table></div>
+
+<h2 id="rp1">1. Problem<small>Pertanyaan yang ingin dijawab</small></h2>
+<div class="card"><p><b>Pertanyaan utama:</b> Supplier mana yang paling sering menghasilkan NG, apakah kualitasnya konsisten antar lot dan antar waktu, dan apakah perbedaannya signifikan atau hanya variasi acak?</p>
+<p>Rancangan memecahnya menjadi 14 pertanyaan (9 Utama, 4 Pendukung, 1 Tambahan) dalam tema NG rate, konsistensi, tren, konteks, scorecard, dampak, dan validitas. Daftar lengkap ada di bagian 2 halaman rancangan.</p></div>
+
+<h2 id="rp2">2. Data<small>Sumber, ukuran, dan perlakuan awal</small></h2>
+<div class="card"><ul class="tight"><li>Data simulasi penerimaan lot dan NG material (100% karangan), dibuat <code>scripts/generate_raw.py</code> lalu dianonimkan <code>scripts/anonymize.py</code>: SUP-A sampai SUP-E, MAT-1 sampai MAT-3, kode lot acak. Data sebelum anonymization dan tabel pemetaan kode tidak masuk repositori.</li><li>Ukuran (perkiraan): 5 supplier, 3 jenis material, ±6 bulan, ±1.200 lot.</li><li>Rencana tabel: <code>dim_supplier</code>, <code>material_lot</code>, <code>lot_usage</code>, <code>scorecard_monthly</code>.</li></ul></div>
+
+<h2 id="rp3">3. Analysis<small>Hasil perhitungan dari data</small></h2>
+<div class="card"><p>Belum dikerjakan. Rencana langkah (12 langkah, tahap A sampai D) ada di bagian 6 halaman rancangan: NG rate dengan rentang keyakinan Wilson, RANK()/DENSE_RANK(), rolling 4 minggu dan LAG(), uji chi-square, skor tertimbang, dan analisis sensitivitas bobot.</p>
+<p>Hipotesis yang akan diuji (belum terbukti): 1. Satu supplier punya NG rate lebih tinggi secara signifikan. 2. Sebagian besar NG berasal dari sedikit lot. 3. Satu supplier memburuk dalam beberapa bulan terakhir. 4. Sebagian perbedaan hilang setelah model dan stasiun diperhitungkan. 5. Supplier volume kecil belum bisa diberi status.</p></div>
+
+<h2 id="rp4">4. Recommendation<small>Tindakan yang disarankan dari temuan</small></h2>
+<div class="card"><p>Belum dikerjakan. Output yang direncanakan: daftar prioritas audit supplier dan rapor supplier bulanan.</p></div>
+
+<h2 id="rp5">5. Impact<small>Seberapa besar manfaatnya</small></h2>
+<div class="card"><p>Belum dikerjakan. Rumus yang akan dipakai (semua hasil diberi label <code>estimated</code>):</p>
+<pre><code>NG terhindari = (NG rate supplier terburuk − rata-rata supplier lain) × volume supplier tersebut</code></pre>
+<p>Definisi skor (usulan awal): skor = 50% sub-skor NG rate + 25% konsistensi antar lot + 25% tren; hijau ≥ 80, kuning 60–79, merah &lt; 60. Alasan bobot dan hasil sensitivitas akan ditulis di sini.</p></div>
+
+<h2 id="rp6">6. Batasan yang sudah diketahui<small>Hal yang perlu diwaspadai saat membaca hasil</small></h2>
+<div class="card"><ul class="tight"><li>Bergantung pada ketepatan kategori "NG karena material".</li><li>Bobot skor bersifat subjektif.</li><li>Pola belum tentu penyebab.</li></ul></div>
+</div>
+</main>
+
+
+<script>
+const $=id=>document.getElementById(id),f1=v=>v.toFixed(1).replace('.',',');
+// Simulasi bobot scorecard (angka contoh): [kode, sub-skor NG rate, konsistensi, tren]
+const S=[["SUP-A",85,80,90],["SUP-B",55,75,70],["SUP-C",70,40,60],["SUP-D",90,85,45],["SUP-E",40,60,85]];
+const score=w=>S.map(s=>w*s[1]+(1-w)/2*(s[2]+s[3]));
+const order=a=>a.map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]).join();
+const st=v=>v>=80?['g','Hijau']:v>=60?['y','Kuning']:['r','Merah'];
+const base=order(score(.5));
+function draw(){const w=$('sl').value/100,sc=score(w);$('slo').textContent=Math.round(w*100)+'%';
+$('bars').innerHTML=S.map((s,i)=>{const [c,l]=st(sc[i]);return `<div class="row" style="cursor:default"><span class="n">${s[0]}<span class="sub">${s[1]} · ${s[2]} · ${s[3]}</span></span><span class="tr"><span class="b ${c}" style="width:${sc[i]}%"></span></span><span class="c">${f1(sc[i])}</span><span style="width:60px;flex:none;font-weight:700;color:${c=='g'?'var(--tealH)':c=='y'?'var(--amberH)':'var(--roseH)'}">${l}</span></div>`}).join('')+`<p class="note">Angka kecil di bawah kode: sub-skor NG rate · konsistensi · tren (0–100). Hijau ≥ 80, kuning 60–79, merah &lt; 60.</p>`;
+const mi=sc.indexOf(Math.min(...sc)),red=S.filter((s,i)=>sc[i]<60).map(s=>s[0]),same=order(sc)==base;
+$('r1').textContent=S[mi][0];$('r2').textContent=red.length?red.join(', '):'tidak ada';$('r3').textContent=same?'Ya':'Tidak';
+$('ins').innerHTML=`Dengan bobot NG rate ${Math.round(w*100)}%, supplier dengan skor terendah adalah <b>${S[mi][0]}</b>${red.length?`, dan status merah dipegang <b>${red.join(', ')}</b>`:', dan tidak ada yang berstatus merah'}. ${same?'Urutan supplier sama dengan bobot awal 50%.':'Urutan supplier <b>berubah</b> dibanding bobot awal 50%, jadi bobot harus disepakati dan alasannya ditulis di README.'} Angka contoh, bukan hasil dari data.`}
+$('sl').oninput=draw;draw();
+
+const G=[["scorecard","i","Kartu penilaian yang merangkum beberapa ukuran menjadi satu skor dan status, misalnya hijau, kuning, merah."],["supplier","i","Pemasok material. Di project ini namanya diganti kode SUP-A sampai SUP-E."],["lot","i","Satu kelompok material yang dikirim dan diterima bersamaan, dengan kode yang sama."],["NG rate","i","Persentase unit gagal.\nRumus: NG rate = unit NG karena material ÷ unit yang memakai material itu.\nContoh: 12 NG dari 4.000 unit = 0,30%."],["rentang keyakinan","i","Rentang nilai yang kemungkinan besar memuat NG rate sebenarnya. Makin sedikit data, makin lebar rentangnya."],["Wilson","i","Cara menghitung rentang keyakinan untuk persentase yang tetap akurat walau NG sangat sedikit.\nContoh: 3 NG dari 500 unit memberi rentang sekitar 0,2%–1,8%."],["chi-square","i","Uji statistik untuk memeriksa apakah perbedaan persentase antar kelompok (di sini antar supplier) lebih besar dari yang bisa terjadi secara kebetulan."],["signifikan","i","Perbedaan yang kecil kemungkinannya terjadi hanya karena kebetulan, biasanya ditandai p-value < 0,05."],["variasi acak","i","Naik-turun angka yang terjadi karena kebetulan, walaupun prosesnya tidak berubah."],["effect size","i","Ukuran seberapa besar perbedaan, terlepas dari jumlah data. Perbedaan bisa signifikan tetapi kecil artinya."],["window function","i","Fitur SQL untuk menghitung nilai berdasarkan baris di sekitarnya tanpa menggabungkan baris, misalnya ranking atau rata-rata 4 minggu terakhir."],["CTE","","Common Table Expression: query bantu bernama (WITH …) agar query panjang lebih mudah dibaca."],["RANK()","","Fungsi SQL yang memberi nomor urut. Nilai yang sama mendapat nomor sama, nomor berikutnya dilewati (1, 2, 2, 4)."],["DENSE_RANK()","","Seperti RANK(), tetapi tanpa melewati nomor (1, 2, 2, 3)."],["LAG()","","Fungsi SQL untuk mengambil nilai dari baris sebelumnya, misalnya NG rate bulan lalu, agar perubahan bisa dihitung."],["rolling NG rate","i","NG rate yang dihitung ulang dari data 4 minggu terakhir setiap minggu, agar tren terlihat lebih halus.\nRumus: total NG 4 minggu ÷ total unit 4 minggu."],["koefisien variasi","i","Ukuran seberapa besar angka naik-turun dibanding rata-ratanya.\nRumus: simpangan baku ÷ rata-rata × 100%.\nContoh: NG rate antar lot rata-rata 0,5% dengan simpangan baku 0,4% berarti 80%."],["p-chart","i","Control chart untuk persentase NG per lot atau per periode, dengan batas wajar yang menyesuaikan jumlah unit."],["skor tertimbang","i","Skor gabungan dari beberapa sub-skor yang masing-masing diberi bobot.\nRumus: skor = bobot NG × skor NG + bobot konsistensi × skor konsistensi + bobot tren × skor tren."],["sensitivitas","i","Pemeriksaan apakah hasil (misalnya urutan supplier) berubah jika asumsi, seperti bobot skor, diubah."],["incoming inspection","i","Pemeriksaan material saat diterima dari supplier, sebelum masuk gudang."],["dianonimkan","i","Sudah diubah agar orang, produk, supplier, atau perusahaan tidak bisa dikenali, sementara pola datanya tetap bisa dianalisis."],["NG","","Not Good: unit yang gagal pemeriksaan."],["OK","","Unit yang lolos pemeriksaan."],["KPI","","Key Performance Indicator: angka kunci untuk menilai kinerja, misalnya NG rate supplier."],["SQL","","Bahasa untuk meminta dan mengolah data dari tabel database."],["DuckDB","i","Database ringan dalam satu file, untuk menjalankan SQL tanpa server."],["dashboard","i","Halaman ringkasan interaktif berisi grafik dan angka kunci."],["Streamlit","i","Alat untuk membuat dashboard web memakai Python."],["view","i","Query SQL yang disimpan dengan nama, sehingga bisa dipanggil seperti tabel."],["kamus data","i","Dokumen yang menjelaskan arti, satuan, dan contoh isi setiap kolom."],["README","","Dokumen penjelasan project yang dibaca pertama kali di repositori GitHub."]];
+
+const TERMS=G.map(([t,f,d])=>({t,d,re:new RegExp('(?<![\\w-])'+t.replace(/[.*+?^${}()|[\]\\-]/g,'\\$&')+'(?![\\w-])',f)}));
+const SK='svg,.fx,.fbar,.oh,.wb,table td:first-child,h1,h2,h3,nav,button,script,style,summary,.tm,.tag,.pri,.pill,.v,.l,.chip,.flow,th,#tip,.banner,.theme,.phase,.add,.tools b,b.t,code';
+function wrapT(n,seen){let b=null;for(const x of TERMS){if(seen.has(x.t))continue;const m=x.re.exec(n.data);if(m&&(!b||m.index<b.i||(m.index==b.i&&m[0].length>b.l)))b={x,i:m.index,l:m[0].length}}
+if(!b)return;seen.add(b.x.t);const r=n.splitText(b.i),a=r.splitText(b.l),s=document.createElement('span');s.className='tm';s.tabIndex=0;s.dataset.d=b.x.d;s.textContent=r.data;r.replaceWith(s);wrapT(a,seen)}
+function hl(root,seen){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest(SK)?3:1}),ns=[];while(w.nextNode())ns.push(w.currentNode);ns.forEach(n=>wrapT(n,seen))}
+const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
+function showT(e){tip.textContent=e.dataset.d;tip.style.display='block';const r=e.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left))+'px';tip.style.top=(r.bottom+h+12>innerHeight?r.top-h-6:r.bottom+6)+'px'}
+document.addEventListener('click',ev=>{const t=ev.target.closest('.tm');t?showT(t):tip.style.display='none'});
+document.addEventListener('mouseover',ev=>{const t=ev.target.closest('.tm');if(t)showT(t)});
+document.addEventListener('mouseout',ev=>{if(ev.target.closest&&ev.target.closest('.tm'))tip.style.display='none'});
+document.addEventListener('focusin',ev=>{const t=ev.target.closest&&ev.target.closest('.tm');if(t)showT(t)});
+addEventListener('scroll',()=>tip.style.display='none',{passive:true});
+const qg=$('qg');document.querySelector('.fbar').onclick=e=>{const b=e.target.closest('.fb');if(!b)return;const f=b.dataset.f;
+document.querySelectorAll('.fb').forEach(x=>x.classList.toggle('on',x==b));let th=null,vis=0;
+[...qg.children].forEach(el=>{if(el.classList.contains('theme')){if(th)th.hidden=!vis;th=el;vis=0}else{const show=f=='*'||el.dataset.p==f;el.hidden=!show;if(show)vis++}});if(th)th.hidden=!vis};
+let seen=new Set();document.querySelectorAll('main>.pane>*').forEach(el=>{if(el.tagName=='H2')seen=new Set();hl(el,seen)});
+
+const TB=[...document.querySelectorAll('.tab')];
+function setTab(t){document.querySelectorAll('.pane,.links').forEach(e=>e.hidden=e.dataset.tab!==t);TB.forEach(x=>{const on=x.dataset.t===t;x.classList.toggle('on',on);x.setAttribute('aria-expanded',on)})}
+function route(){const h=decodeURIComponent(location.hash.slice(1)),el=h&&document.getElementById(h);
+if(h=='design'||h=='report'){setTab(h);scrollTo(0,0);return}
+if(el){const p=el.closest('.pane');if(p){setTab(p.dataset.tab);el.scrollIntoView()}}}
+TB.forEach(x=>x.onclick=()=>{location.hash=x.dataset.t});
+addEventListener('hashchange',route);route();
+</script>
+
+</body></html>

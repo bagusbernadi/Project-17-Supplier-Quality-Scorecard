@@ -1,0 +1,5 @@
+skenario,supplier,ng_rate_supplier,ng_rate_pembanding,selisih,volume_bulanan,ng_terhindari_per_bulan,ci_low,ci_high,persen_ng_supplier_terhindari,label
+"dasar: pembanding gabungan, volume 4 bulan penuh",SUP-C,0.0352797745,0.01410288059,0.02117689391,20957.75,443.8200483,349.2833691,545.6856556,0.6002559315,estimated
+sensitivitas: pembanding rata-rata sederhana supplier lain,SUP-C,0.0352797745,0.01423718112,0.02104259338,20957.75,441.0054113,,,0.5964492028,estimated
+sensitivitas: volume rata-rata semua bulan (Agustus tidak lengkap),SUP-C,0.0352797745,0.01410288059,0.02117689391,19685.5,416.877745,,,0.6002559315,estimated
+tambahan: SUP-A kembali ke NG rate sebelum memburuk,SUP-A,0.03474403393,0.01387531999,0.02086871394,20050.5,418.4281489,,,0.6006416521,estimated

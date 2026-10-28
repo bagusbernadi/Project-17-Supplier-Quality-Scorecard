@@ -1,0 +1,11 @@
+pemeriksaan,hasil
+halaman Scorecard tanpa error,lulus
+jumlah kartu supplier sama dengan CSV,lulus
+skor tampil sama dengan CSV,lulus
+ganti bulan tanpa error,lulus
+halaman Detail Supplier tanpa error,lulus
+halaman Detail Supplier punya tabel atau grafik,lulus
+halaman Metodologi tanpa error,lulus
+halaman Metodologi punya tabel atau grafik,lulus
+filter supplier dan material tanpa error,lulus
+slider bobot tanpa error,lulus

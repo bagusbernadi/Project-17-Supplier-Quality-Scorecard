@@ -1,0 +1,28 @@
+sasaran,faktor_skala,supplier_code,skor,ranking,status,tau_vs_dasar
+bulan terakhir,0.5,SUP-A,9.9245246,4,merah,1
+bulan terakhir,0.5,SUP-C,35.76958911,3,merah,1
+bulan terakhir,0.5,SUP-D,67.42190746,1,kuning,1
+bulan terakhir,0.5,SUP-E,60.97865295,2,kuning,1
+bulan terakhir,1,SUP-A,33.12292578,4,merah,1
+bulan terakhir,1,SUP-C,50.03908118,3,merah,1
+bulan terakhir,1,SUP-D,83.71095373,1,hijau,1
+bulan terakhir,1,SUP-E,80.48932647,2,hijau,1
+bulan terakhir,2,SUP-A,66.56146289,4,kuning,1
+bulan terakhir,2,SUP-C,75.01954059,3,kuning,1
+bulan terakhir,2,SUP-D,91.85547686,1,hijau,1
+bulan terakhir,2,SUP-E,90.24466324,2,hijau,1
+rata-rata bulan dinilai,0.5,SUP-A,15.25255943,5,merah,0.8
+rata-rata bulan dinilai,0.5,SUP-B,66.90061433,1,kuning,0.8
+rata-rata bulan dinilai,0.5,SUP-C,31.83069441,4,merah,0.8
+rata-rata bulan dinilai,0.5,SUP-D,54.28483178,2,merah,0.8
+rata-rata bulan dinilai,0.5,SUP-E,52.79122645,3,merah,0.8
+rata-rata bulan dinilai,1,SUP-A,57.27944526,4,merah,1
+rata-rata bulan dinilai,1,SUP-B,83.45030716,1,hijau,1
+rata-rata bulan dinilai,1,SUP-C,46.59156706,5,merah,1
+rata-rata bulan dinilai,1,SUP-D,77.14241589,2,kuning,1
+rata-rata bulan dinilai,1,SUP-E,76.39561323,3,kuning,1
+rata-rata bulan dinilai,2,SUP-A,78.63972263,4,kuning,1
+rata-rata bulan dinilai,2,SUP-B,91.72515358,1,hijau,1
+rata-rata bulan dinilai,2,SUP-C,73.29578353,5,kuning,1
+rata-rata bulan dinilai,2,SUP-D,88.57120794,2,hijau,1
+rata-rata bulan dinilai,2,SUP-E,88.19780661,3,hijau,1

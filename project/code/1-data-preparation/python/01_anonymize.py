@@ -1,18 +1,18 @@
 """Project 17 (langkah 2 dari 2): anonymization data simulasi lot -> data/anon/. Seed tetap.
 
 Supplier, material, stasiun, model, dan kode lot diganti kode acak; jumlah unit diskala. Tabel pemetaan dan
-faktor skala disimpan di data/private/ (tidak pernah di-commit). Hasil (data/anon/): dim_supplier.csv,
-material_lot.csv, lot_usage.csv, ground_truth.json (memakai kode anonim).
+faktor skala disimpan di project/data/mapping_key.json (tidak pernah di-commit). Hasil (project/data/anon/):
+dim_supplier.csv, material_lot.csv, lot_usage.csv, ground_truth.json (memakai kode anonim; hanya dibaca skrip validasi).
 """
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-PRIV, ANON = ROOT / "data" / "private", ROOT / "data" / "anon"
-RAW = PRIV / "raw"
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from common import ANON, MAPPING_KEY, RAW
 SEED = 17260999                        # seed terpisah untuk pemetaan kode
 SCALE = 0.42                           # faktor skala jumlah unit (rahasia, ikut private)
 
@@ -49,7 +49,7 @@ ANON.mkdir(parents=True, exist_ok=True)
 lot.sort_values("lot_code").to_csv(ANON / "material_lot.csv", index=False)
 use.to_csv(ANON / "lot_usage.csv", index=False)
 dim.to_csv(ANON / "dim_supplier.csv", index=False)
-(PRIV / "mapping.json").write_text(json.dumps({"supplier": sup, "material": mat, "station": sta, "model": mod,
+MAPPING_KEY.write_text(json.dumps({"supplier": sup, "material": mat, "station": sta, "model": mod,
                                               "scale": SCALE}, indent=2, ensure_ascii=False), encoding="utf-8")
 gt_raw = json.loads((RAW / "ground_truth_raw.json").read_text(encoding="utf-8"))
 txt = json.dumps(gt_raw, ensure_ascii=False)

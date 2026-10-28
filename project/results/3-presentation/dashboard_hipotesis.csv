@@ -1,0 +1,6 @@
+id,hipotesis_rancangan,verdict,bukti
+H1,Satu supplier punya NG rate yang lebih tinggi secara signifikan untuk jenis material yang sama.,Terbukti,material dengan supplier tertinggi signifikan pada tingkat unit: 3 dari 3; pada tingkat lot: 3; keduanya: 3
+H2,"Sebagian besar NG suatu supplier berasal dari sedikit lot, bukan merata di semua lot.",Tidak terbukti,0 dari 5 supplier punya lebih dari 50% NG dari 10% lot teratas; rentang 31.4% sampai 41.6%
+H3,"Satu supplier memburuk dalam beberapa bulan terakhir, terlihat dari rolling NG rate.",Terbukti,"supplier memburuk (8 minggu terakhir vs sebelumnya, rasio >= 1,5, Holm p < 0,05): SUP-A"
+H4,Sebagian perbedaan antar supplier hilang setelah model dan stasiun pemakai diperhitungkan.,Terbukti,supplier terburuk SUP-C: OR 2.56 menjadi 2.05; 23.4% selisih (skala log) dijelaskan model dan stasiun
+H5,Supplier dengan volume kecil punya rentang keyakinan yang terlalu lebar untuk diberi status.,Terbukti,supplier volume terkecil SUP-B: CI bulanan terlalu lebar (setengah lebar > 25% dari NG rate) pada 83% bulan; 83% bulan di bawah batas 2.000 unit atau 10 lot

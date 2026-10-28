@@ -1,0 +1,15 @@
+pandas>=2.0
+numpy
+duckdb>=1.0
+openpyxl
+scipy
+statsmodels
+matplotlib
+reportlab
+nbformat
+nbconvert
+nbclient
+ipykernel
+streamlit>=1.40
+plotly>=5.20
+playwright

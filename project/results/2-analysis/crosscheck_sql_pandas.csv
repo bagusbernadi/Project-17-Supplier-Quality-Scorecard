@@ -1,0 +1,8 @@
+pemeriksaan,dibandingkan,cocok,selisih_maks,hasil
+NG rate per supplier (Q1),5,5,4.7e-11,cocok
+NG rate per supplier x material (Q1),7,7,3.5e-11,cocok
+"NG rate bulanan, RANK, DENSE_RANK, LAG (Q3)",30,30,5e-11,cocok
+rolling NG rate 4 minggu dan LAG (Q6),130,130,5e-11,cocok
+NG rate per lot (Q4),1200,1200,5e-11,cocok
+koefisien variasi antar lot (Q4),5,5,5e-11,cocok
+komponen scorecard: CV antar lot dan tren (Q10),30,30,5e-11,cocok

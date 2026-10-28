@@ -1,0 +1,6 @@
+uji,statistik,derajat_bebas,p_value,effect_size_cramers_v,n_unit
+chi-square NG vs OK antar 5 supplier (unit),2547.551264,4,0,0.06746859402,559654
+chi-square antar supplier pada MAT-1 (unit),1371.890221,1,2.696422342e-300,0.08075642165,210361
+chi-square antar supplier pada MAT-2 (unit),219.6117782,1,1.099170343e-49,0.04293575124,119129
+chi-square antar supplier pada MAT-3 (unit),202.8335142,2,9.021152573e-45,0.02968596419,230164
+Kruskal-Wallis NG rate lot antar 5 supplier (lot),403.4076966,4,5.104975873e-86,,1164

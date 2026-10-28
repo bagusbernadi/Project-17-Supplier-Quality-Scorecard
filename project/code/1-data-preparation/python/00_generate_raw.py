@@ -2,17 +2,19 @@
 
 Data ini 100% karangan (nama supplier, material, model, stasiun, kode lot fiktif), tetapi dibuat berbentuk
 seperti data kerja supaya langkah anonymization (anonymize.py) bisa dilatih dan diuji.
-Hasil (data/private/raw/, tidak di-commit): suppliers.csv, receipts.csv, usage.csv, ground_truth_raw.json.
-Jalankan: python scripts/generate_raw.py && python scripts/anonymize.py   (versi data: v1)
+Hasil (project/data/raw/, tidak di-commit): suppliers.csv, receipts.csv, usage.csv, ground_truth_raw.json.
+Jalankan dari folder project/: python code/1-data-preparation/python/00_generate_raw.py (lalu 01_anonymize.py). Versi data: v1.
+Logika, seed, dan nilai identik dengan generator di repo DataCenter/simulasi (sidik jari SHA-256 dicek di 02_verify_fingerprint.py).
 """
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-RAW = ROOT / "data" / "private" / "raw"
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from common import RAW
 SEED = 17260302
 DATA_VERSION = "v1"
 START, N_DAYS = "2026-03-02", 130                 # Mar - Agu 2026, hari kerja

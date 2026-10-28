@@ -1,0 +1,64 @@
+sasaran,bobot_ng,supplier_code,skor,ranking,status
+bulan terakhir,0.2,SUP-A,44.27873255,4,merah
+bulan terakhir,0.2,SUP-C,71.47738594,3,kuning
+bulan terakhir,0.2,SUP-D,87.97977267,1,hijau
+bulan terakhir,0.2,SUP-E,84.74559431,2,hijau
+bulan terakhir,0.3,SUP-A,40.56013029,4,merah
+bulan terakhir,0.3,SUP-C,64.33128435,3,kuning
+bulan terakhir,0.3,SUP-D,86.55683302,1,hijau
+bulan terakhir,0.3,SUP-E,83.32683836,2,hijau
+bulan terakhir,0.4,SUP-A,36.84152804,4,merah
+bulan terakhir,0.4,SUP-C,57.18518276,3,merah
+bulan terakhir,0.4,SUP-D,85.13389337,1,hijau
+bulan terakhir,0.4,SUP-E,81.90808242,2,hijau
+bulan terakhir,0.5,SUP-A,33.12292578,4,merah
+bulan terakhir,0.5,SUP-C,50.03908118,3,merah
+bulan terakhir,0.5,SUP-D,83.71095373,1,hijau
+bulan terakhir,0.5,SUP-E,80.48932647,2,hijau
+bulan terakhir,0.6,SUP-A,29.40432352,4,merah
+bulan terakhir,0.6,SUP-C,42.89297959,3,merah
+bulan terakhir,0.6,SUP-D,82.28801408,1,hijau
+bulan terakhir,0.6,SUP-E,79.07057053,2,kuning
+bulan terakhir,0.7,SUP-A,25.68572127,4,merah
+bulan terakhir,0.7,SUP-C,35.74687801,3,merah
+bulan terakhir,0.7,SUP-D,80.86507444,1,hijau
+bulan terakhir,0.7,SUP-E,77.65181458,2,kuning
+bulan terakhir,0.8,SUP-A,21.96711901,4,merah
+bulan terakhir,0.8,SUP-C,28.60077642,3,merah
+bulan terakhir,0.8,SUP-D,79.44213479,1,kuning
+bulan terakhir,0.8,SUP-E,76.23305864,2,kuning
+rata-rata bulan dinilai,0.2,SUP-A,62.06331376,5,kuning
+rata-rata bulan dinilai,0.2,SUP-B,87.45379436,1,hijau
+rata-rata bulan dinilai,0.2,SUP-C,67.73504347,4,kuning
+rata-rata bulan dinilai,0.2,SUP-D,81.94792222,2,hijau
+rata-rata bulan dinilai,0.2,SUP-E,79.85510704,3,kuning
+rata-rata bulan dinilai,0.3,SUP-A,60.46869093,5,kuning
+rata-rata bulan dinilai,0.3,SUP-B,86.11929863,1,hijau
+rata-rata bulan dinilai,0.3,SUP-C,60.687218,4,kuning
+rata-rata bulan dinilai,0.3,SUP-D,80.34608678,2,hijau
+rata-rata bulan dinilai,0.3,SUP-E,78.70194243,3,kuning
+rata-rata bulan dinilai,0.4,SUP-A,58.87406809,4,merah
+rata-rata bulan dinilai,0.4,SUP-B,84.7848029,1,hijau
+rata-rata bulan dinilai,0.4,SUP-C,53.63939253,5,merah
+rata-rata bulan dinilai,0.4,SUP-D,78.74425133,2,kuning
+rata-rata bulan dinilai,0.4,SUP-E,77.54877783,3,kuning
+rata-rata bulan dinilai,0.5,SUP-A,57.27944526,4,merah
+rata-rata bulan dinilai,0.5,SUP-B,83.45030716,1,hijau
+rata-rata bulan dinilai,0.5,SUP-C,46.59156706,5,merah
+rata-rata bulan dinilai,0.5,SUP-D,77.14241589,2,kuning
+rata-rata bulan dinilai,0.5,SUP-E,76.39561323,3,kuning
+rata-rata bulan dinilai,0.6,SUP-A,55.68482242,4,merah
+rata-rata bulan dinilai,0.6,SUP-B,82.11581143,1,hijau
+rata-rata bulan dinilai,0.6,SUP-C,39.54374159,5,merah
+rata-rata bulan dinilai,0.6,SUP-D,75.54058044,2,kuning
+rata-rata bulan dinilai,0.6,SUP-E,75.24244862,3,kuning
+rata-rata bulan dinilai,0.7,SUP-A,54.09019959,4,merah
+rata-rata bulan dinilai,0.7,SUP-B,80.7813157,1,hijau
+rata-rata bulan dinilai,0.7,SUP-C,32.49591612,5,merah
+rata-rata bulan dinilai,0.7,SUP-D,73.938745,3,kuning
+rata-rata bulan dinilai,0.7,SUP-E,74.08928402,2,kuning
+rata-rata bulan dinilai,0.8,SUP-A,52.49557675,4,merah
+rata-rata bulan dinilai,0.8,SUP-B,79.44681997,1,kuning
+rata-rata bulan dinilai,0.8,SUP-C,25.44809065,5,merah
+rata-rata bulan dinilai,0.8,SUP-D,72.33690956,3,kuning
+rata-rata bulan dinilai,0.8,SUP-E,72.93611942,2,kuning

@@ -1,0 +1,8 @@
+pengecekan,pelanggaran,hasil
+NG tidak boleh melebihi input,0,lulus
+input harus positif,0,lulus
+setiap pemakaian punya lot,0,lulus
+kode lot unik,0,lulus
+setiap lot punya supplier dan material,0,lulus
+pasangan supplier-material ada di dim_supplier,0,lulus
+pemakaian tidak sebelum tanggal terima,0,lulus

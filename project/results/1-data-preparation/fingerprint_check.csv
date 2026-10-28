@@ -1,0 +1,10 @@
+berkas,sidik_jari_datacenter,sidik_jari_hasil,hasil
+data/anon/dim_supplier.csv,87a43546118e,87a43546118e,cocok
+data/anon/ground_truth.json,e65e5e20e9bd,e65e5e20e9bd,cocok
+data/anon/lot_usage.csv,862e933e052a,862e933e052a,cocok
+data/anon/material_lot.csv,9e255fc7309d,9e255fc7309d,cocok
+data/mapping_key.json,2b119498eb0e,2b119498eb0e,cocok
+data/raw/ground_truth_raw.json,a498aa296401,a498aa296401,cocok
+data/raw/receipts.csv,caa686c16e26,caa686c16e26,cocok
+data/raw/suppliers.csv,2dadfc93d197,2dadfc93d197,cocok
+data/raw/usage.csv,f980c1c775de,f980c1c775de,cocok
