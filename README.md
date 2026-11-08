@@ -4,7 +4,7 @@
 
 **Halaman web:** https://bagusbernadi.github.io/Project-17-Supplier-Quality-Scorecard/
 
-**Status: Selesai di branch `project-17-build` (belum di-merge ke `main`).** Halaman rancangan dan laporan: [`design-and-report/index.html`](design-and-report/index.html) (tab Design Project dan Report Project).
+**Status: Selesai dan digabung ke `main`.** Halaman rancangan dan laporan: [`design-and-report/index.html`](design-and-report/index.html) (tab Design Project dan Report Project).
 
 **Tujuan:** membangun scorecard kualitas supplier dari data OK/NG per lot material yang dianonimkan, untuk menilai supplier mana yang paling sering menyebabkan NG, seberapa konsisten kualitasnya antar lot dan antar waktu, serta apakah perbedaannya signifikan.
 
